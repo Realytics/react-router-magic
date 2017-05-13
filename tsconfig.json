@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "sourceRoot": "./src",
+    "sourceMap": true,
+    "experimentalDecorators": false,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "declaration": true,
+    "declarationDir": "./",
+    "jsx": "react"
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
