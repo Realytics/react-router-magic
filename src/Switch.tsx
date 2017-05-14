@@ -5,6 +5,7 @@ import { Location } from 'history';
 import { Store } from './Store';
 import { Match } from './matchPath';
 import { Route } from './Route';
+import { Redirect } from './Redirect';
 import { match, MatchResult } from './utils';
 import { RouterStoreState } from './RouterProvider';
 
@@ -47,7 +48,8 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
       if (!React.isValidElement<any>(child)) {
         return;
       }
-      if (child.type !== Route) {
+      if (child.type !== Route && child.type !== Redirect) {
+        console.warn(`Switch only accept Route or Redirect components as children`);
         return;
       }
       const matchResult: MatchResult = match(
