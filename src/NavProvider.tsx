@@ -17,8 +17,8 @@ export namespace NavProviderTypes {
       exact?: boolean;
     } & {
       to: Path | LocationDescriptorObject;
-      renderChild: (params: ChildParams) => JSX.Element;
       replace?: boolean;
+      renderChild: (params: ChildParams) => JSX.Element;
       noSubscribe?: boolean;
     }
   );
