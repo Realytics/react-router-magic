@@ -92,9 +92,6 @@ export function match(
     }
   );
 
-  console.log(path);
-  console.log(match);
-
   return {
     match: match,
     location: parentRouterState.location
