@@ -15,7 +15,7 @@ export class Store<State> {
     this.broadcast(this.state);
   }
 
-  broadcast(state: any): void {
+  broadcast(state: State): void {
     this.listeners.forEach(listener => listener(state));
   }
 
