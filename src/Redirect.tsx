@@ -1,20 +1,19 @@
-import * as React from 'react';
 import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
-import { Path, LocationDescriptorObject, History } from 'history';
+import { LocationDescriptorObject, History } from 'history';
 import { Store } from './Store';
-import { MatchResult, MatchProps, match, createLocationDescriptorObject, RealtiveAbsoluteProps } from './utils';
+import {
+  matchPath, Match, FromLocationProps, ToLocationProps, createLocationDescriptor, FromLocationObj, normalizeFromObject,
+  normalizeToObject, ToLocationObj,
+} from './utils';
 import { RouterStoreState } from './RouterProvider';
 
 export namespace RedirectTypes {
 
-  export type Props = (
-    MatchProps &
-    RealtiveAbsoluteProps & {
-      to: Path | LocationDescriptorObject;
-      push?: boolean;
-    }
-  );
+  export type Props = {
+    to: ToLocationProps | string,
+    from?: FromLocationProps | string,
+  };
 
   export type Context = {
     routerStore: Store<RouterStoreState>;
@@ -27,32 +26,42 @@ export class Redirect extends Component<RedirectTypes.Props, {}> {
 
   static contextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store), // from RouterProvider or parent Route
-    router: PropTypes.any
+    router: PropTypes.any,
   };
-  
+
   context: RedirectTypes.Context;
   private unsubscribe: () => void;
 
+  constructor(props: RedirectTypes.Props, context: RedirectTypes.Context) {
+    super(props, context);
+    this.unsubscribe = context.routerStore.subscribe(() => {
+      this.forceUpdate();
+    });
+  }
+
   componentDidMount(): void {
     const history: History = this.context.router.history;
-    const push: boolean = this.props.push === true;
+    const fromObj: FromLocationObj = normalizeFromObject(this.props.from);
+    const toObj: ToLocationObj = normalizeToObject(this.props.to, true);
+    const parentRouterState: RouterStoreState = this.context.routerStore.getState();
 
-    const matchResult: MatchResult = match(
-      this.context.routerStore,
-      this.props
+    const match: Match<{}> | null = matchPath(
+      parentRouterState.location,
+      parentRouterState.match,
+      fromObj,
     );
+    const replace: boolean = toObj.replace;
 
-    if (matchResult.match) { // Redirect
-      const to: LocationDescriptorObject = createLocationDescriptorObject(
-        this.props.to,
-        this.props,
-        this.context.routerStore.getState().match
+    if (match) { // redirect
+      const toDescriptor: LocationDescriptorObject = createLocationDescriptor(
+        parentRouterState.match,
+        toObj,
       );
 
-      if (push) {
-        history.push(to);
+      if (replace) {
+        history.replace(toDescriptor);
       } else {
-        history.replace(to);
+        history.push(toDescriptor);
       }
     }
 

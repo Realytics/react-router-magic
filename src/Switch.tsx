@@ -3,10 +3,9 @@ import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
 import { Location } from 'history';
 import { Store } from './Store';
-import { Match } from './matchPath';
 import { Route } from './Route';
 import { Redirect } from './Redirect';
-import { match, MatchResult } from './utils';
+import { matchPath, Match } from './utils';
 import { RouterStoreState } from './RouterProvider';
 
 export namespace SwitchTypes {
@@ -31,17 +30,25 @@ export namespace SwitchTypes {
 export class Switch extends Component<SwitchTypes.Props, {}> {
 
   static contextTypes: ValidationMap<any> = {
-    routerStore: PropTypes.instanceOf(Store)
+    routerStore: PropTypes.instanceOf(Store),
   };
 
   context: SwitchTypes.Context;
+  unsubscribe: () => void;
+
+  constructor(props: SwitchTypes.Props, context: SwitchTypes.Context) {
+    super(props, context);
+    this.unsubscribe = context.routerStore.subscribe(() => {
+      this.forceUpdate();
+    });
+  }
 
   render(): JSX.Element | null {
 
-    var matchFound: boolean = false;
-    var content: JSX.Element | null = null;
+    let matchFound: boolean = false;
+    let content: JSX.Element | null = null;
 
-    React.Children.forEach(this.props.children, (child: React.ReactChild) => {
+    React.Children.forEach(this.props.children, (child, index) => {
       if (matchFound) {
         return;
       }
@@ -52,13 +59,15 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
         console.warn(`Switch only accept Route or Redirect components as children`);
         return;
       }
-      const matchResult: MatchResult = match(
-        this.context.routerStore,
-        child.props
+      const parentRouterState: RouterStoreState = this.context.routerStore.getState();
+      const match: Match<{}> | null = matchPath(
+        parentRouterState.location,
+        parentRouterState.match,
+        child.props,
       );
-      if (matchResult.match) {
+      if (match) {
         matchFound = true;
-        content = React.cloneElement(child, { passif: true });
+        content = React.cloneElement(child, { passif: true, key: index });
       }
     });
 

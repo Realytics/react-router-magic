@@ -46,7 +46,14 @@ var config = {
     ]
   },
 
-  externals: {}
+  externals: {
+    'react': {
+      root: 'React',
+      commonjs2: 'react',
+      commonjs: 'react',
+      amd: 'react'
+    }
+  }
 };
 
 if ('production' === env) {

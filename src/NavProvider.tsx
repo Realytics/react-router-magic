@@ -1,9 +1,9 @@
 import { MouseEvent, Component, ValidationMap } from 'react';
-import { Path, LocationDescriptorObject, History } from 'history';
+import { Path, LocationDescriptorObject, History, Location } from 'history';
 import { Store } from './Store';
 import { RouterStoreState } from './RouterProvider';
 import * as PropTypes from 'prop-types';
-import { MatchResult, match, createLocationDescriptorObject, RealtiveAbsoluteProps } from './utils';
+import { ToLocationProps, matchPath, Match, createPath, normalizeFromObject } from './utils';
 
 function isModifiedEvent(event: MouseEvent<any>): boolean {
   return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
@@ -12,12 +12,7 @@ function isModifiedEvent(event: MouseEvent<any>): boolean {
 export namespace NavProviderTypes {
 
   export type Props = (
-    RealtiveAbsoluteProps & {
-      strict?: boolean;
-      exact?: boolean;
-    } & {
-      to: Path | LocationDescriptorObject;
-      replace?: boolean;
+    ToLocationProps & {
       renderChild: (params: ChildParams) => JSX.Element;
       noSubscribe?: boolean;
     }
@@ -25,8 +20,9 @@ export namespace NavProviderTypes {
 
   export type ChildParams = {
     href: string;
+    match: Match<{}> | null;
+    location: Location;
     navigate: () => void;
-    match: MatchResult;
     handleAnchorClick: (event: MouseEvent<any>) => void;
   };
 
@@ -41,9 +37,9 @@ export class NavProvider extends Component<NavProviderTypes.Props, {}> {
 
   static contextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store), // from RouterProvider or parent Route
-    router: PropTypes.any
+    router: PropTypes.any,
   };
-  
+
   context: NavProviderTypes.Context;
   private unsubscribe: () => void;
 
@@ -69,36 +65,50 @@ export class NavProvider extends Component<NavProviderTypes.Props, {}> {
   }
 
   render(): JSX.Element {
-    const { to, renderChild, replace, ...props }: NavProviderTypes.Props = this.props;
-
-    const href: string = this.context.router.history.createHref(
-      createLocationDescriptorObject(to, props, this.context.routerStore.getState().match)
+    const { renderChild, replace, search, state, hash, key, ...props } = this.props;
+    const parentRouterState: RouterStoreState = this.context.routerStore.getState();
+    const match: Match<{}> | null = matchPath(
+      parentRouterState.location,
+      parentRouterState.match,
+      normalizeFromObject(props),
     );
-
-    const matchResult: MatchResult = match(
-      this.context.routerStore,
-      props
-    );
-
+    const to: LocationDescriptorObject = this.getToObject();
+    const href: string = this.context.router.history.createHref(to);
     const childParams: NavProviderTypes.ChildParams = {
       href: href,
       navigate: () => this.navigate(),
-      match: matchResult,
-      handleAnchorClick: (event: MouseEvent<any>) => this.handleAnchorClick(event)
+      match: match,
+      location: parentRouterState.location,
+      handleAnchorClick: (event: MouseEvent<any>) => this.handleAnchorClick(event),
     };
 
     return renderChild(childParams);
   }
 
-  private navigate(): void {
-    const history: History = this.context.router.history;
-    const to: LocationDescriptorObject = createLocationDescriptorObject(
-      this.props.to,
+  private getToObject(): LocationDescriptorObject {
+    const { search, state, hash, key } = this.props;
+    const parentRouterState: RouterStoreState = this.context.routerStore.getState();
+    const path: Path = createPath(
+      parentRouterState.match,
       this.props,
-      this.context.routerStore.getState().match
+      this.props.params,
     );
+    const to: LocationDescriptorObject = {
+      pathname: path,
+      search,
+      state,
+      hash,
+      key,
+    };
+    return to;
+  }
 
-    if (this.props.replace) {
+  private navigate(): void {
+    const { replace } = this.props;
+    const to: LocationDescriptorObject = this.getToObject();
+    const history: History = this.context.router.history;
+
+    if (replace) {
       history.replace(to);
     } else {
       history.push(to);
