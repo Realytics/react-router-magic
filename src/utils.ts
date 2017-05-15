@@ -106,7 +106,7 @@ function isPathRelative(path: string, options: RealtiveAbsoluteOptions): boolean
 }
 
 function getCompiledPattern(options: PathObject): CompiledPattern {
-  const { path, exact, strict } = options;
+  const { path, exact, strict }: PathObject = options;
   return compilePath(path, { end: exact, strict });
 }
 
@@ -117,8 +117,8 @@ function matchAbsolutePath<P extends {[key: string]: string}>(
   pathname: string,
   pathObj: PathObject,
 ): Match<P> | null {
-  const { exact, path } = pathObj;
-  const { re, keys } = getCompiledPattern(pathObj);
+  const { exact, path }: PathObject = pathObj;
+  const { re, keys }: CompiledPattern = getCompiledPattern(pathObj);
   const match: RegExpExecArray | null = re.exec(pathname);
 
   if (!match) {
@@ -150,6 +150,7 @@ function buildAbsolutePath(
   path: Path | undefined,
   options: RealtiveAbsoluteOptions,
   parentMatch: Match<{}> | null,
+  useUrl: boolean = false
 ): Path {
   if (!isString(path)) {
     path = '';
@@ -158,20 +159,33 @@ function buildAbsolutePath(
   if (!relativePath) { // absolute
     return '/' + trimStart(path, '/');
   }
-  const base: string = (parentMatch && parentMatch.path) ? '/' + trim(parentMatch.path, '/') : '/';
+  const base: string = (() => {
+    if (!parentMatch) {
+      return '/';
+    }
+    if (useUrl && parentMatch.url) {
+      return trim(parentMatch.url, '/');
+    }
+    if (!useUrl && parentMatch.path) {
+      return trim(parentMatch.path, '/');
+    }
+    return '/';
+  })();
   return base + '/' + trimStart(path, '/');
 }
 
 function buildAbsolutePathObject(
   parentMatch: Match<{}> | null,
   props: FromLocationObj,
+  useUrl: boolean = false
 ): PathObject {
-  const { absolute, relative, exact, strict } = props;
+  const { absolute, relative, exact, strict }: FromLocationObj = props;
 
   const path: Path = buildAbsolutePath(
     props.path,
     { absolute, relative },
     parentMatch,
+    useUrl
   );
 
   return { path, exact, strict };
@@ -214,7 +228,7 @@ export function normalizeFromObject(fromObj: FromLocationProps | string = {}): F
     strict = false,
     absolute = false,
     relative = false,
-  } = obj;
+  }: FromLocationProps = obj;
   return {
     ...obj,
     path,
@@ -230,7 +244,7 @@ export function normalizeToObject(
   replaceByDefault: boolean = false,
 ): ToLocationObj {
   const obj: ToLocationProps = isString(toObj) ? { path: toObj } : toObj;
-  const { replace = replaceByDefault } = obj;
+  const { replace = replaceByDefault }: ToLocationProps = obj;
   return {
     ...obj,
     ...normalizeFromObject(obj),
@@ -242,6 +256,7 @@ export function createPath(parentMatch: Match<{}> | null, toObj: ToLocationProps
   const pathObj: PathObject = buildAbsolutePathObject(
     parentMatch,
     normalizeToObject(toObj),
+    true
   );
   const { compile }: CompiledPattern = getCompiledPattern(pathObj);
   return compile(params);
