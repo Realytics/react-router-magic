@@ -1,18 +1,16 @@
 import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
-import { LocationDescriptorObject, History } from 'history';
+import { History } from 'history';
 import { Store } from './Store';
-import {
-  matchPath, Match, FromLocationProps, ToLocationProps, createLocationDescriptor, FromLocationObj, normalizeFromObject,
-  normalizeToObject, ToLocationObj,
-} from './utils';
+import { Match, IPathPattern } from './interface';
 import { RouterStoreState } from './RouterProvider';
 
 export namespace RedirectTypes {
 
   export type Props = {
-    to: ToLocationProps | string,
-    from?: FromLocationProps | string,
+    to: string,
+    replace?: boolean;
+    from?: IPathPattern<{}>,
   };
 
   export type Context = {
@@ -41,27 +39,16 @@ export class Redirect extends Component<RedirectTypes.Props, {}> {
 
   componentDidMount(): void {
     const history: History = this.context.router.history;
-    const fromObj: FromLocationObj = normalizeFromObject(this.props.from);
-    const toObj: ToLocationObj = normalizeToObject(this.props.to, true);
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-
-    const match: Match<{}> | null = matchPath(
-      parentRouterState.location,
-      parentRouterState.match,
-      fromObj,
-    );
-    const replace: boolean = toObj.replace;
+    const { pathname = '' } = parentRouterState.location;
+    const match: Match<{}> | null | true = this.props.from ? this.props.from.match(pathname) : true;
+    const replace: boolean = this.props.replace === true;
 
     if (match) { // redirect
-      const toDescriptor: LocationDescriptorObject = createLocationDescriptor(
-        parentRouterState.match,
-        toObj,
-      );
-
       if (replace) {
-        history.replace(toDescriptor);
+        history.replace(this.props.to);
       } else {
-        history.push(toDescriptor);
+        history.push(this.props.to);
       }
     }
 

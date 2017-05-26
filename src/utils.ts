@@ -150,7 +150,7 @@ function buildAbsolutePath(
   path: Path | undefined,
   options: RealtiveAbsoluteOptions,
   parentMatch: Match<{}> | null,
-  useUrl: boolean = false
+  useUrl: boolean = false,
 ): Path {
   if (!isString(path)) {
     path = '';
@@ -177,7 +177,7 @@ function buildAbsolutePath(
 function buildAbsolutePathObject(
   parentMatch: Match<{}> | null,
   props: FromLocationObj,
-  useUrl: boolean = false
+  useUrl: boolean = false,
 ): PathObject {
   const { absolute, relative, exact, strict }: FromLocationObj = props;
 
@@ -185,7 +185,7 @@ function buildAbsolutePathObject(
     props.path,
     { absolute, relative },
     parentMatch,
-    useUrl
+    useUrl,
   );
 
   return { path, exact, strict };
@@ -256,7 +256,7 @@ export function createPath(parentMatch: Match<{}> | null, toObj: ToLocationProps
   const pathObj: PathObject = buildAbsolutePathObject(
     parentMatch,
     normalizeToObject(toObj),
-    true
+    true,
   );
   const { compile }: CompiledPattern = getCompiledPattern(pathObj);
   return compile(params);

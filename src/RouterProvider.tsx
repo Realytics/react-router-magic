@@ -1,14 +1,13 @@
 import * as React from 'react';
-import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
+import isEqual = require('lodash/isEqual');
+import { Component, ValidationMap } from 'react';
 import { History, Location } from 'history';
 import { Store } from './Store';
-import isEqual = require('lodash/isEqual');
-import { Match } from './utils';
+import { Match } from './interface';
 
 export type RouterState = {
   location: Location;
-  previousLocation: Location | null;
 };
 
 export type RouterStoreState = (
@@ -57,7 +56,6 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
     super(props);
     this.routerStore = new Store<RouterStoreState>({
       location: props.router.location,
-      previousLocation: props.router.previousLocation,
       match: RouterProvider.EMPTY_MATCH,
     });
   }
@@ -66,7 +64,6 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
     if (!isEqual(nextProps.router, this.props.router)) {
       this.routerStore.setState({
         location: nextProps.router.location,
-        previousLocation: nextProps.router.previousLocation,
         match: RouterProvider.EMPTY_MATCH,
       });
     }
