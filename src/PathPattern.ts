@@ -8,11 +8,45 @@ export type ContructorOptions = {
   strict?: boolean;
 };
 
+export type CacheContainer = {
+  [key: string]: { [key: string]: { re?: PathRegExp, compile?: PathFunction } };
+};
+
 export class PathPattern<P> implements IPathPattern<P> {
 
-  private re: PathRegExp;
-  private reCompile: PathFunction;
+  static cache: CacheContainer = {};
+
   private options: RegExpOptions & ParseOptions;
+  private _re: PathRegExp;
+  private _reCompile: PathFunction;
+  private _optionsKey: string;
+
+  private get optionsKey(): string {
+    if (!this._optionsKey) {
+      this._optionsKey = `${this.options.end}-${this.options.strict}`;
+    }
+    return this._optionsKey;
+  }
+
+  private get re(): PathRegExp {
+    if (!this._re) {
+      this.ensureCacheExist();
+      if (!PathPattern.cache[this.path][this.optionsKey].re) {
+        PathPattern.cache[this.path][this.optionsKey].re = this._re = pathToRegexp(this.path, this.options);
+      }
+    }
+    return this._re;
+  }
+
+  private get reCompile(): PathFunction {
+    if (!this._reCompile) {
+      this.ensureCacheExist();
+      if (!PathPattern.cache[this.path][this.optionsKey].compile) {
+        PathPattern.cache[this.path][this.optionsKey].compile = this._reCompile = pathToRegexp.compile(this.path);
+      }
+    }
+    return this._reCompile;
+  }
 
   constructor(
     private path: string,
@@ -20,8 +54,6 @@ export class PathPattern<P> implements IPathPattern<P> {
   ) {
     const { exact = false, strict = false } = options;
     this.options = { end: exact, strict };
-    this.reCompile = pathToRegexp.compile(path);
-    this.re = pathToRegexp(this.path, this.options);
   }
 
   match(location: string): Match<P> | null {
@@ -55,6 +87,15 @@ export class PathPattern<P> implements IPathPattern<P> {
 
   compile(params: P): string {
     return this.reCompile(params);
+  }
+
+  private ensureCacheExist(): void {
+    if (!PathPattern.cache[this.path]) {
+      PathPattern.cache[this.path] = {};
+    }
+    if (!PathPattern.cache[this.path][this.optionsKey]) {
+      PathPattern.cache[this.path][this.optionsKey] = {};
+    }
   }
 
 }
