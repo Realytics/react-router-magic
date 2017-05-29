@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { RouterProvider, PathPattern, Route, NavProvider } from 'react-router-magic';
+import { RouterProvider, PathPattern, Route, NavProvider, Redirect } from 'react-router-magic';
 import createHistory from 'history/createBrowserHistory';
 
 const history = createHistory();
 
 const homePath = new PathPattern('/home');
+const yoloPath = new PathPattern('/yolo');
+const userPath = new PathPattern('/user/:user');
 
 class App extends Component {
 
@@ -36,11 +38,22 @@ class App extends Component {
               <a href={params.href} onClick={params.handleAnchorClick}>Go to home</a>
             )}
           />
+          <NavProvider
+            to={yoloPath}
+            renderChild={(params) => (
+              <a href={params.href} onClick={params.handleAnchorClick}>Go to yolo</a>
+            )}
+          />
           <Route
             pattern={homePath}
             render={() => (
               <p>Home !!</p>
             )}
+          />
+          <Redirect
+            from={yoloPath}
+            to={userPath}
+            params={{ user: 'john' }}
           />
         </div>
       </RouterProvider>

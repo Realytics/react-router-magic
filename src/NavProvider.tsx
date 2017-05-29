@@ -48,10 +48,9 @@ export class NavProvider extends Component<NavProviderTypes.Props, {}> {
   context: NavProviderTypes.Context;
   private unsubscribe: () => void;
 
-  constructor(props: NavProviderTypes.Props, context: NavProviderTypes.Context) {
-    super(props, context);
-    if (props.noSubscribe !== true) {
-      this.unsubscribe = context.routerStore.subscribe(() => {
+  componentDidMount() {
+    if (this.props.noSubscribe !== true) {
+      this.unsubscribe = this.context.routerStore.subscribe(() => {
         this.forceUpdate();
       });
     }
