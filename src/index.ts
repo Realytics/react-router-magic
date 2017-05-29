@@ -4,3 +4,4 @@ export { NavProvider } from './NavProvider';
 export { RouterProvider, RouterProviderTypes } from './RouterProvider';
 export { matchPath } from './utils';
 export { Redirect } from './Redirect';
+export { PathPattern } from './PathPattern';

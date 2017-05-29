@@ -6,28 +6,17 @@ import { History, Location } from 'history';
 import { Store } from './Store';
 import { Match } from './interface';
 
-export type RouterState = {
+export type RouterStoreState = {
   location: Location;
+  match: Match<{}> | null;
 };
-
-export type RouterStoreState = (
-  RouterState &
-  {
-    match: Match<{}> | null;
-  }
-);
 
 export namespace RouterProviderTypes {
 
-  export type PropsFromRedux = {
-    router: RouterState,
-  };
-
-  export type PropsFromUser = {
+  export type Props = {
     history: History;
+    location: Location;
   };
-
-  export type Props = PropsFromRedux & PropsFromUser;
 
   export type ChildContext = {
     router: { history: History };
@@ -55,15 +44,15 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
   constructor(props: RouterProviderTypes.Props) {
     super(props);
     this.routerStore = new Store<RouterStoreState>({
-      location: props.router.location,
+      location: props.location,
       match: RouterProvider.EMPTY_MATCH,
     });
   }
 
   componentWillReceiveProps(nextProps: RouterProviderTypes.Props): void {
-    if (!isEqual(nextProps.router, this.props.router)) {
+    if (!isEqual(nextProps.location, this.props.location)) {
       this.routerStore.setState({
-        location: nextProps.router.location,
+        location: nextProps.location,
         match: RouterProvider.EMPTY_MATCH,
       });
     }

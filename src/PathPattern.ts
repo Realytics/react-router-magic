@@ -3,6 +3,11 @@ import { PathRegExp, PathFunction, RegExpOptions, ParseOptions, Key } from 'path
 import { IPathPattern, Match } from './interface.d';
 import reduce = require('lodash/reduce');
 
+export type ContructorOptions = {
+  exact?: boolean;
+  strict?: boolean;
+};
+
 export class PathPattern<P> implements IPathPattern<P> {
 
   private re: PathRegExp;
@@ -11,9 +16,9 @@ export class PathPattern<P> implements IPathPattern<P> {
 
   constructor(
     private path: string,
-    strict: boolean,
-    exact: boolean,
+    options: ContructorOptions = {},
   ) {
+    const { exact = false, strict = false } = options;
     this.options = { end: exact, strict };
     this.reCompile = pathToRegexp.compile(path);
     this.re = pathToRegexp(this.path, this.options);
