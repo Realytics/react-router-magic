@@ -25,7 +25,7 @@ export namespace NavProviderTypes {
 
   export type ChildParams = {
     href: string;
-    match: Match<{}> | null;
+    match: Match<{}> | false;
     location: Location;
     navigate: () => void;
     handleAnchorClick: (event: MouseEvent<any>) => void;
@@ -73,7 +73,7 @@ export class NavProvider extends Component<NavProviderTypes.Props, {}> {
   render(): JSX.Element {
     const { renderChild, ...props } = this.props;
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-    const match: Match<{}> | null = props.to.match(parentRouterState.location.pathname);
+    const match: Match<{}> | false = props.to.match(parentRouterState.location.pathname);
 
     const to: LocationDescriptorObject = this.getToObject();
     const href: string = this.context.router.history.createHref(to);

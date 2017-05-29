@@ -56,18 +56,18 @@ export class PathPattern<P> implements IPathPattern<P> {
     this.options = { end: exact, strict };
   }
 
-  match(location: string): Match<P> | null {
+  match(location: string): Match<P> | false {
     const match: RegExpExecArray | null = this.re.exec(location);
 
     if (!match) {
-      return null;
+      return false;
     }
 
     const [url, ...values]: RegExpExecArray = match;
     const isExact: boolean = location === url;
 
     if (this.options.end && !isExact) {
-      return null;
+      return false;
     }
 
     return {

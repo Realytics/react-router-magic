@@ -5,7 +5,7 @@ export type Match<P> = {
   url: string;
 };
 
-export interface IPathPattern<P> {
-  match(path: string): (Match<P> | null);
+export interface IPathPattern<P extends {}> {
+  match(path: string): (Match<P> | false);
   compile(params: P): string;
 }

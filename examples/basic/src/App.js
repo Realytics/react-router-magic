@@ -9,6 +9,7 @@ const helloPath = new PathPattern('/hello');
 const userExactPath = new PathPattern('/user', { exact: true });
 const userPath = new PathPattern('/user/:user');
 const welcomeUserPath = new PathPattern('/user/welcome');
+const parentPath = new PathPattern('/parent');
 
 class App extends Component {
 
@@ -103,6 +104,22 @@ class App extends Component {
               )}
             />
           </Switch>
+          <Route
+            pattern={parentPath}
+            render={() => (
+              <div>
+                Parent
+                <Route
+                  pattern={(parentPattern, parentMatch) => new PathPattern(parentMatch && parentMatch.url + '/child')}
+                  render={() => (
+                    <div>
+                      Child
+                    </div>
+                  )}
+                />
+              </div>
+            )}
+          />
         </div>
       </RouterProvider>
     );

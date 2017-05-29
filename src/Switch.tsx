@@ -6,7 +6,8 @@ import { Store } from './Store';
 import { Route, RouteTypes } from './Route';
 import { Redirect, RedirectTypes } from './Redirect';
 import { RouterStoreState } from './RouterProvider';
-import { Match } from './interface';
+import { IPathPattern, Match } from './interface';
+import { compilePattern, matchPattern } from './utils';
 
 export namespace SwitchTypes {
 
@@ -60,15 +61,16 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
       if (!React.isValidElement<any>(child)) {
         return;
       }
-      let match: Match<{}> | null | true = null;
+      let pattern: IPathPattern<{}> | null = null;
       const parentRouterState: RouterStoreState = this.context.routerStore.getState();
       if (isComponentType<RouteTypes.Props>(child, Route)) {
-        match = child.props.pattern.match(parentRouterState.location.pathname);
+        pattern = compilePattern(child.props.pattern, parentRouterState);
       } else if (isComponentType<RedirectTypes.Props>(child, Redirect)) {
-        match = !child.props.from || child.props.from.match(parentRouterState.location.pathname);
+        pattern = !child.props.from ? null : compilePattern(child.props.from, parentRouterState);
       } else {
         console.warn(`Switch only accept Route or Redirect components as children`);
       }
+      let match: Match<{}> | false = matchPattern(pattern, parentRouterState);
       if (match) {
         matchFound = true;
         content = React.cloneElement(child, { passif: true, key: index });

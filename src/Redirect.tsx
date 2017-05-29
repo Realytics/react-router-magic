@@ -3,14 +3,25 @@ import * as PropTypes from 'prop-types';
 import { History, Search, LocationState, Hash, LocationKey, LocationDescriptorObject } from 'history';
 import { Store } from './Store';
 import { Match, IPathPattern } from './interface.d';
+import isFunction = require('lodash/isFunction');
 import { RouterStoreState } from './RouterProvider';
+import { compilePattern, matchPattern } from './utils';
 
 export namespace RedirectTypes {
 
   export type PropsTyped<P> = {
-    to: IPathPattern<{}>;
-    from?: IPathPattern<P>,
-    params?: P;
+    to: (
+      IPathPattern<{}> |
+      ((parentPattern: IPathPattern<{}> | null, parentMatch: Match<any> | false) => IPathPattern<{}>)
+    );
+    from?: (
+      IPathPattern<P> |
+      ((parentPattern: IPathPattern<{}> | null, parentMatch: Match<any> | false) => IPathPattern<P>)
+    );
+    params?: (
+      P |
+      ((parentPattern: IPathPattern<{}> | null, parentMatch: Match<any> | false) => P)
+    );
     replace?: boolean;
     // location props
     search?: Search;
@@ -60,14 +71,19 @@ export class Redirect extends Component<RedirectTypes.Props, {}> {
   private redirect(): void {
     const history: History = this.context.router.history;
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-    const { pathname = '' } = parentRouterState.location;
-    const match: Match<{}> | null | true = this.props.from ? this.props.from.match(pathname) : true;
+    const patternFrom: IPathPattern<{}> | null = compilePattern(this.props.from, parentRouterState);
+    const match: Match<{}> | false = matchPattern(patternFrom, parentRouterState);
     const replace: boolean = this.props.replace === true;
 
     if (match) { // redirect
       const { params, to, search, state, hash, key } = this.props;
+      const patternTo: IPathPattern<{}> | null = compilePattern(to, parentRouterState);
+      const paramsCompiled: any = isFunction(params) ? params(
+        parentRouterState.pattern,
+        parentRouterState.match,
+      ) : params;
       const toObj: LocationDescriptorObject = {
-        pathname: to.compile(params),
+        pathname: patternTo ? patternTo.compile(paramsCompiled) : '/',
         search,
         state,
         hash,
