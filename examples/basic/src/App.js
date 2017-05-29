@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { RouterProvider, PathPattern, Route, NavProvider, Redirect } from 'react-router-magic';
+import { RouterProvider, PathPattern, Route, NavProvider, Redirect, Switch } from 'react-router-magic';
 import createHistory from 'history/createBrowserHistory';
 
 const history = createHistory();
 
 const homePath = new PathPattern('/home');
-const yoloPath = new PathPattern('/yolo');
+const helloPath = new PathPattern('/hello');
+const userExactPath = new PathPattern('/user', { exact: true });
 const userPath = new PathPattern('/user/:user');
+const welcomeUserPath = new PathPattern('/user/welcome');
 
 class App extends Component {
 
@@ -37,13 +39,39 @@ class App extends Component {
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Go to home</a>
             )}
-          />
+          /><br/>
           <NavProvider
-            to={yoloPath}
+            to={helloPath}
             renderChild={(params) => (
-              <a href={params.href} onClick={params.handleAnchorClick}>Go to yolo</a>
+              <a href={params.href} onClick={params.handleAnchorClick}>Go to hello (redirect to /user/john)</a>
             )}
-          />
+          /><br />
+          <NavProvider
+            to={userExactPath}
+            renderChild={(params) => (
+              <a href={params.href} onClick={params.handleAnchorClick}>Go to user homepage</a>
+            )}
+          /><br />
+          <NavProvider
+            to={userPath}
+            params={{ user: 'jane' }}
+            renderChild={(params) => (
+              <a href={params.href} onClick={params.handleAnchorClick}>Go say hello to Jane</a>
+            )}
+          /><br />
+          <NavProvider
+            to={welcomeUserPath}
+            renderChild={(params) => (
+              <a href={params.href} onClick={params.handleAnchorClick}>Go welcome users</a>
+            )}
+          /><br />
+          <NavProvider
+            to={userPath}
+            params={{ user: 'welcome' }}
+            renderChild={(params) => (
+              <a href={params.href} onClick={params.handleAnchorClick}>Also Go welcome users</a>
+            )}
+          /><br />
           <Route
             pattern={homePath}
             render={() => (
@@ -51,10 +79,30 @@ class App extends Component {
             )}
           />
           <Redirect
-            from={yoloPath}
+            from={helloPath}
             to={userPath}
             params={{ user: 'john' }}
           />
+          <Route
+            pattern={userExactPath}
+            render={() => (
+              <p>User page</p>
+            )}
+          />
+          <Switch>
+            <Route
+              pattern={welcomeUserPath}
+              render={() => (
+                <p>Welcome User !</p>
+              )}
+            />
+            <Route
+              pattern={userPath}
+              render={(params) => (
+                <p>Hello {params.match !== null ? params.match.params.user : 'Anonymous' }</p>
+              )}
+            />
+          </Switch>
         </div>
       </RouterProvider>
     );

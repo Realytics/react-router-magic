@@ -12,8 +12,7 @@
     "test": ""
   },
   "dependencies": {
-    "path-to-regexp": "^1.7.0",
-    "prop-types": "^15.5.10"
+    "path-to-regexp": "^1.7.0"
   },
   "devDependencies": {
     "@types/history": "^4.5.1",
@@ -30,6 +29,7 @@
     "webpack": "^2.5.1"
   },
   "peerDependencies": {
-    "react": "^15.5.4"
+    "react": "^15.5.4",
+    "prop-types": "^15.5.10"
   }
 }

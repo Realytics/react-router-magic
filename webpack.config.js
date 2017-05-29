@@ -52,6 +52,12 @@ var config = {
       commonjs2: 'react',
       commonjs: 'react',
       amd: 'react'
+    },
+    'prop-types': {
+      root: 'PropTypes',
+      commonjs2: 'prop-types',
+      commonjs: 'prop-types',
+      amd: 'prop-types'
     }
   }
 };

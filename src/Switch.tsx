@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Component, ValidationMap } from 'react';
+import { Component, ValidationMap, ReactElement } from 'react';
 import * as PropTypes from 'prop-types';
 import { Location } from 'history';
 import { Store } from './Store';
-import { Route } from './Route';
-import { Redirect } from './Redirect';
-import { matchPath, Match } from './utils';
+import { Route, RouteTypes } from './Route';
+import { Redirect, RedirectTypes } from './Redirect';
 import { RouterStoreState } from './RouterProvider';
+import { Match } from './interface';
 
 export namespace SwitchTypes {
 
@@ -23,11 +23,16 @@ export namespace SwitchTypes {
 
 }
 
+function isComponentType<P>(child: ReactElement<any>, type: any): child is ReactElement<P> {
+  return child.type === type;
+}
+
 /**
  * Render the first Route that match
- * Unlike Router, Switch does not expose a matchStore
  */
 export class Switch extends Component<SwitchTypes.Props, {}> {
+
+  static displayName: string = 'Switch';
 
   static contextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),
@@ -55,16 +60,15 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
       if (!React.isValidElement<any>(child)) {
         return;
       }
-      if (child.type !== Route && child.type !== Redirect) {
-        console.warn(`Switch only accept Route or Redirect components as children`);
-        return;
-      }
+      let match: Match<{}> | null | true = null;
       const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-      const match: Match<{}> | null = matchPath(
-        parentRouterState.location,
-        parentRouterState.match,
-        child.props,
-      );
+      if (isComponentType<RouteTypes.Props>(child, Route)) {
+        match = child.props.pattern.match(parentRouterState.location.pathname);
+      } else if (isComponentType<RedirectTypes.Props>(child, Redirect)) {
+        match = !child.props.from || child.props.from.match(parentRouterState.location.pathname);
+      } else {
+        console.warn(`Switch only accept Route or Redirect components as children`);
+      }
       if (match) {
         matchFound = true;
         content = React.cloneElement(child, { passif: true, key: index });

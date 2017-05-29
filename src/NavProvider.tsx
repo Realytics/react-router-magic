@@ -3,7 +3,7 @@ import { Path, LocationDescriptorObject, History, Location, Search, LocationStat
 import { Store } from './Store';
 import { RouterStoreState } from './RouterProvider';
 import * as PropTypes from 'prop-types';
-import { Match, IPathPattern } from './interface';
+import { Match, IPathPattern } from './interface.d';
 
 export namespace NavProviderTypes {
 
@@ -39,6 +39,8 @@ export namespace NavProviderTypes {
 }
 
 export class NavProvider extends Component<NavProviderTypes.Props, {}> {
+
+  static displayName: string = 'NavProvider';
 
   static contextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store), // from RouterProvider or parent Route

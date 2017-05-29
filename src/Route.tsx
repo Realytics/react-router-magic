@@ -5,7 +5,7 @@ import { Component, ValidationMap, ReactType } from 'react';
 import { Location } from 'history';
 import { Store } from './Store';
 import { RouterStoreState } from './RouterProvider';
-import { Match, IPathPattern } from './interface';
+import { Match, IPathPattern } from './interface.d';
 
 export namespace RouteTypes {
 
@@ -36,6 +36,8 @@ export namespace RouteTypes {
 }
 
 export class Route extends Component<RouteTypes.Props, void> {
+
+  static displayName: string = 'Route';
 
   static childContextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),

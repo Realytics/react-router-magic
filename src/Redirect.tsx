@@ -2,7 +2,7 @@ import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
 import { History, Search, LocationState, Hash, LocationKey, LocationDescriptorObject } from 'history';
 import { Store } from './Store';
-import { Match, IPathPattern } from './interface';
+import { Match, IPathPattern } from './interface.d';
 import { RouterStoreState } from './RouterProvider';
 
 export namespace RedirectTypes {
@@ -30,6 +30,8 @@ export namespace RedirectTypes {
 }
 
 export class Redirect extends Component<RedirectTypes.Props, {}> {
+
+  static displayName: string = 'Redirect';
 
   static contextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store), // from RouterProvider or parent Route

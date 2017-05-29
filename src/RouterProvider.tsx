@@ -4,7 +4,7 @@ import isEqual = require('lodash/isEqual');
 import { Component, ValidationMap } from 'react';
 import { History, Location } from 'history';
 import { Store } from './Store';
-import { Match } from './interface';
+import { Match } from './interface.d';
 
 export type RouterStoreState = {
   location: Location;
@@ -26,6 +26,8 @@ export namespace RouterProviderTypes {
 }
 
 export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
+
+  static displayName: string = 'RouterProvider';
 
   static childContextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),
