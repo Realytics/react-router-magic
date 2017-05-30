@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import isEqual = require('lodash/isEqual');
+import isEqual = require('deep-equal');
 import { Component, ValidationMap } from 'react';
 import { History, Location } from 'history';
 import { Store } from './Store';
