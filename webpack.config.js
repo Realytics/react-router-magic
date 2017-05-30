@@ -7,11 +7,11 @@ var env = process.env.NODE_ENV;
 var config = {
   context: __dirname,
   target: 'web',
-  name: 'redux-router-location',
+  name: 'react-router-magic',
   entry: './src/index.ts',
 
   output: {
-    library: 'ReduxRouterLocation',
+    library: 'ReactRouterMagic',
     libraryTarget: 'umd'
   },
 
@@ -52,6 +52,12 @@ var config = {
       commonjs2: 'react',
       commonjs: 'react',
       amd: 'react'
+    },
+    'prop-types': {
+      root: 'PropTypes',
+      commonjs2: 'prop-types',
+      commonjs: 'prop-types',
+      amd: 'prop-types'
     }
   }
 };

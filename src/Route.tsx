@@ -1,27 +1,28 @@
-import { Component, ValidationMap, ReactType } from 'react';
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { Store } from './Store';
-import { matchPath, FromLocationProps, Match, normalizeFromObject } from './utils';
-import { RouterStoreState } from './RouterProvider';
+import isFunction = require('lodash.isFunction');
+import { Component, ValidationMap, ReactType } from 'react';
 import { Location } from 'history';
-import isFunction = require('lodash/isFunction');
+import { Store } from './Store';
+import { RouterStoreState } from './RouterProvider';
+import { Match, IPathPattern } from './interface.d';
+import { compilePattern, matchPattern } from './utils';
 
 export namespace RouteTypes {
 
-  export type ContentProps = {
+  export type Props = {
+    // pattern
+    pattern: (
+      IPathPattern<{}> |
+      ((parentPattern: IPathPattern<{}> | null, parentMatch: Match<any> | false) => IPathPattern<{}>)
+    );
+    // render
     component?: ReactType;
     render?: (params: ChildParams) => JSX.Element;
     children?: ((params: ChildParams) => JSX.Element) | JSX.Element;
+    // behavior
+    passif?: boolean;
   };
-
-  export type Props = (
-    ContentProps &
-    FromLocationProps &
-    {
-      passif?: boolean;
-    }
-  );
 
   export type Context = {
     routerStore: Store<RouterStoreState>;
@@ -32,13 +33,15 @@ export namespace RouteTypes {
   };
 
   export type ChildParams = {
-    match: Match<{}> | null;
+    match: Match<{}> | false;
     location: Location
   };
 
 }
 
 export class Route extends Component<RouteTypes.Props, void> {
+
+  static displayName: string = 'Route';
 
   static childContextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),
@@ -49,9 +52,8 @@ export class Route extends Component<RouteTypes.Props, void> {
   };
 
   context: RouteTypes.Context;
-
   private routerStore: Store<RouterStoreState>;
-  private matchResult: Match<{}> | null;
+  private matchResult: Match<{}> | false;
   private unsubscribe: () => void;
 
   constructor(props: RouteTypes.Props, context: RouteTypes.Context) {
@@ -60,15 +62,12 @@ export class Route extends Component<RouteTypes.Props, void> {
       throw new Error('Route need a RouterProvider as ancestor');
     }
     const parentRouterState: RouterStoreState = context.routerStore.getState();
-    this.matchResult = matchPath(
-      parentRouterState.location,
-      parentRouterState.match,
-      normalizeFromObject(props),
-    );
+    const pattern: IPathPattern<{}> | null = compilePattern(props.pattern, parentRouterState);
+    this.matchResult = matchPattern(pattern, parentRouterState);
     this.routerStore = new Store<RouterStoreState>({
       location: parentRouterState.location,
-      previousLocation: parentRouterState.previousLocation,
       match: this.matchResult,
+      pattern: pattern,
     });
     if (props.passif !== true) { // don't subscribe if passif
       this.unsubscribe = context.routerStore.subscribe(() => {
@@ -90,7 +89,7 @@ export class Route extends Component<RouteTypes.Props, void> {
   }
 
   render(): JSX.Element | null {
-    const { component, render, children }: RouteTypes.ContentProps = this.props;
+    const { component, render, children }: RouteTypes.Props = this.props;
     const childParams: RouteTypes.ChildParams = {
       match: this.matchResult,
       location: this.context.routerStore.getState().location,
@@ -113,15 +112,16 @@ export class Route extends Component<RouteTypes.Props, void> {
 
   private update(forceUpdate: boolean = true): void {
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-    this.matchResult = matchPath(
-      parentRouterState.location,
+    const { pathname = '' } = parentRouterState.location;
+    const pattern: IPathPattern<{}> = isFunction(this.props.pattern) ? this.props.pattern(
+      parentRouterState.pattern,
       parentRouterState.match,
-      normalizeFromObject(this.props),
-    );
+    ) : this.props.pattern;
+    this.matchResult = pattern.match(pathname);
     this.routerStore.setState({
       location: parentRouterState.location,
-      previousLocation: parentRouterState.previousLocation,
       match: this.matchResult,
+      pattern: pattern,
     });
     if (forceUpdate) {
       this.forceUpdate();

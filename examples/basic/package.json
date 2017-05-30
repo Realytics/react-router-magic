@@ -1,0 +1,23 @@
+{
+  "name": "react-router-magic-basic-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "lnk-cli": "^1.0.1",
+    "react-scripts": "^1.0.7"
+  },
+  "dependencies": {
+    "history": "^4.6.1",
+    "prop-types": "^15.5.10",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
+  },
+  "scripts": {
+    "rsync": "rsync ../../lib/* ./node_modules/react-router-magic",
+    "start": "npm run rsync && react-scripts start",
+    "build": "react-scripts build",
+    "eject": "react-scripts eject",
+    "test": "react-scripts test"
+  }
+}

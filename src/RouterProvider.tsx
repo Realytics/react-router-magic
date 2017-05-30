@@ -1,34 +1,23 @@
 import * as React from 'react';
-import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
+import isEqual = require('deep-equal');
+import { Component, ValidationMap } from 'react';
 import { History, Location } from 'history';
 import { Store } from './Store';
-import isEqual = require('lodash/isEqual');
-import { Match } from './utils';
+import { Match, IPathPattern } from './interface.d';
 
-export type RouterState = {
+export type RouterStoreState = {
   location: Location;
-  previousLocation: Location | null;
+  match: Match<{}> | false;
+  pattern: IPathPattern<{}> | null;
 };
-
-export type RouterStoreState = (
-  RouterState &
-  {
-    match: Match<{}> | null;
-  }
-);
 
 export namespace RouterProviderTypes {
 
-  export type PropsFromRedux = {
-    router: RouterState,
-  };
-
-  export type PropsFromUser = {
+  export type Props = {
     history: History;
+    location: Location;
   };
-
-  export type Props = PropsFromRedux & PropsFromUser;
 
   export type ChildContext = {
     router: { history: History };
@@ -38,6 +27,8 @@ export namespace RouterProviderTypes {
 }
 
 export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
+
+  static displayName: string = 'RouterProvider';
 
   static childContextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),
@@ -56,18 +47,18 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
   constructor(props: RouterProviderTypes.Props) {
     super(props);
     this.routerStore = new Store<RouterStoreState>({
-      location: props.router.location,
-      previousLocation: props.router.previousLocation,
+      location: props.location,
       match: RouterProvider.EMPTY_MATCH,
+      pattern: null,
     });
   }
 
   componentWillReceiveProps(nextProps: RouterProviderTypes.Props): void {
-    if (!isEqual(nextProps.router, this.props.router)) {
+    if (!isEqual(nextProps.location, this.props.location)) {
       this.routerStore.setState({
-        location: nextProps.router.location,
-        previousLocation: nextProps.router.previousLocation,
+        location: nextProps.location,
         match: RouterProvider.EMPTY_MATCH,
+        pattern: null,
       });
     }
   }
