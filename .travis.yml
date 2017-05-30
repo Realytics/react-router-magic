@@ -1,0 +1,11 @@
+language: node_js
+node_js: node
+cache: yarn
+deploy:
+  provider: npm
+  email: opensource@realytics.io
+  api_key:
+    secure: Uc5lecgXexNn+gcntVcGa2Bw/DzZbKQaZjgQokToTOL0OoJPI2FHPUYzg6XUB+DAOJ6sKp062STISpnZEdN4Fq5hKk0ByVd6NussrX6IBgKsUOjrsfMBn5P6ww5DSMLz37VXh2tld7DWlSOxGwWp+5nUwJ6q0g1jJhxsedwc5Ev5z9h6+A20OCLwfbmypNVv3d8WUnQiuPdpOM8X2tCM+a22AR3miaPg0OtVEZe+7yY4LnQpGTBqp5Y8UN4cw3q7yKI+dw66t76hpeQdY5dW+A8R6EadMtaiZENyqUaddsfXjMER5bDJRHsq4mk/i4+oig2LeSjk1MZs8PIPqMB5Znm3HzE5bNwhDWWJJzNYUK07hvMGLmnkazXctMh96I6A2Km02OElViyXy5drZLchEcL3YlnU8wWon8h3+oP3NUITF/bsFePaHMLCvUnIrKnH3LDDXny9UbWtZvQ4Di/SqB59NedAJtFCPsvTNNdAGMRGw/q4cvKsnrEnUGx5y6QFvbapJtsFVvlQKqiYGWpPcz6/UsdQmNaZXQpoKrFCf3W0m1M//yjfMIZXBaIZiDoabC0B2mf2i7v54PO5h3tH+rkCU0AnraYoyhFOFTHUElSo+2AIaYDYLen2l7Cxtr2vGR+vVUevzO4p0mG/7g61pgCqk7r31hu6RsKiw6e8gF0=
+  on:
+    tags: true
+    repo: Realytics/react-router-magic

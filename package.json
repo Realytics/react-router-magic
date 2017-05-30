@@ -1,7 +1,19 @@
 {
-  "name": "redux-router-location",
-  "version": "1.0.0",
-  "repository": "git@github.com:Realytics/redux-router-location.git",
+  "name": "react-router-magic",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Realytics/redux-router-location.git"
+  },
+  "keywords": [
+    "react",
+    "router",
+    "context",
+    "update",
+    "scu",
+    "magic",
+    "react-router"
+  ],
   "author": "Etienne Dldc <etienne.dldc@outlook.fr>",
   "license": "MIT",
   "main": "lib/index.js",
@@ -10,19 +22,25 @@
     "clean": "rimraf lib",
     "build": "NODE_ENV=production npm run clean && NODE_ENV=production webpack lib/index.js",
     "build-stats": "NODE_ENV=production npm run clean && NODE_ENV=production webpack lib/index.js --json > stats.json",
-    "test": ""
+    "prepublish": "npm run build",
+    "test": "jest",
+    "test:watch": "yarn test -- --watch",
+    "test:cov": "yarn test -- --coverage"
   },
   "dependencies": {},
   "devDependencies": {
     "@types/deep-equal": "^1.0.0",
     "@types/history": "^4.5.1",
+    "@types/jest": "^19.2.3",
     "@types/lodash.isfunction": "^3.0.2",
     "@types/prop-types": "^15.5.1",
     "@types/react": "^15.0.24",
     "cross-env": "^5.0.0",
     "deep-equal": "^1.0.1",
+    "jest": "^20.0.4",
     "lodash.isfunction": "^3.0.8",
     "rimraf": "^2.5.4",
+    "ts-jest": "^20.0.5",
     "ts-loader": "^2.0.0",
     "tslint": "^5.2.0",
     "tslint-loader": "^3.3.0",
@@ -32,5 +50,27 @@
   "peerDependencies": {
     "prop-types": "^15.5.10",
     "react": "^15.5.4"
+  },
+  "description": "Like react-router but with magic inside",
+  "bugs": {
+    "url": "https://github.com/Realytics/redux-router-location/issues"
+  },
+  "homepage": "https://github.com/Realytics/redux-router-location#readme",
+  "directories": {
+    "example": "examples",
+    "lib": "lib",
+    "test": "test"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/test/.*\\.spec.(ts|tsx|js))$",
+    "mapCoverage": true
   }
 }
