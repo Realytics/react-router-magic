@@ -1,5 +1,5 @@
 import { Match, IPathPattern } from './interface.d';
-import isFunction = require('lodash.isFunction');
+import isFunction = require('lodash.isfunction');
 import { RouterStoreState } from './RouterProvider';
 
 export function compilePattern<P extends {}>(

@@ -3,7 +3,7 @@ import * as PropTypes from 'prop-types';
 import { History, Search, LocationState, Hash, LocationKey, LocationDescriptorObject } from 'history';
 import { Store } from './Store';
 import { Match, IPathPattern } from './interface.d';
-import isFunction = require('lodash.isFunction');
+import isFunction = require('lodash.isfunction');
 import { RouterStoreState } from './RouterProvider';
 import { compilePattern, matchPattern } from './utils';
 

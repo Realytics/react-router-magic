@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import isFunction = require('lodash.isFunction');
+import isFunction = require('lodash.isfunction');
 import { Component, ValidationMap, ReactType } from 'react';
 import { Location } from 'history';
 import { Store } from './Store';
