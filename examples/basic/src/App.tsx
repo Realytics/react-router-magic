@@ -13,15 +13,12 @@ export class App extends Component<{}, { location: Location }> {
     this.state = {
       location: history.location,
     };
-  }
-
-  private unlisten: () => void;
-
-  componentDidMount() {
     this.unlisten = history.listen((location: Location) => {
       this.setState({ location: location });
     });
   }
+
+  private unlisten: () => void;
 
   componentWillUnmount() {
     this.unlisten();
@@ -74,11 +71,11 @@ export class App extends Component<{}, { location: Location }> {
               <p>Home !!</p>
             )}
           />
-          <Redirect
-            match={(location: Location) => location.pathname === '/hello'}
-            to='/user/john'
-          />
           <Switch>
+            <Redirect
+              match={(location: Location) => (location.pathname === '/' || location.pathname === '')}
+              to='/user/welcome'
+            />
             <Route
               match={(location: Location) => location.pathname === '/user/welcome'}
               render={() => (
@@ -97,6 +94,9 @@ export class App extends Component<{}, { location: Location }> {
               render={(params) => (
                 <p>Hello { (params.match as any).user }</p>
               )}
+            />
+            <Route
+              render={() => (<div>Not found !</div>)}
             />
           </Switch>
         </div>

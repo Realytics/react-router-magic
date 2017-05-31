@@ -17,7 +17,7 @@ export function execValOrFunc<Val>(
 }
 
 export function checkSwitchState(
-  props: { switchIndex?: number },
+  props: { switchIndex?: number | false },
   parentRouterState: RouterStoreState,
   match: Match,
 ): Match {
@@ -27,9 +27,11 @@ export function checkSwitchState(
   if (parentRouterState.switch && props.switchIndex === undefined) {
     console.warn(`Error: Switch children are supposed to have switchIndex passed from parent`);
   }
+  if (props.switchIndex === false) {
+    return false;
+  }
   if (
     parentRouterState.switch &&
-    props.switchIndex !== undefined &&
     parentRouterState.switch.matchIndex !== props.switchIndex
   ) {
     return false;

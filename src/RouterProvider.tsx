@@ -9,7 +9,7 @@ import { Match } from './utils';
 export type RouterStoreState = {
   location: Location;
   match: Match;
-  switch: false | { match: Match, matchIndex: number | null };
+  switch: false | { match: Match, matchIndex: number | false };
 };
 
 export namespace RouterProviderTypes {

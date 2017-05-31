@@ -49,7 +49,7 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
   constructor(props: SwitchTypes.Props, context: SwitchTypes.Context) {
     super(props, context);
     if (!context.routerStore || !context.routerStore.getState()) {
-      throw new Error('Route need a RouterProvider as ancestor');
+      throw new Error('Switch need a RouterProvider as ancestor');
     }
 
     this.unsubscribe = context.routerStore.subscribe(() => {
@@ -106,12 +106,12 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
     this.updateValidChildren(props);
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
     let match: Match = null;
-    let matchIndex: number | null = null;
+    let matchIndex: number | false = false;
     this.validChildren.forEach((child, index) => {
-      if (matchIndex !== null) {
+      if (matchIndex !== false) {
         return;
       }
-      let tmpMatch: Match = execValOrFunc<Match>(child.props, parentRouterState);
+      let tmpMatch: Match = execValOrFunc<Match>(child.props.match, parentRouterState);
       if (tmpMatch !== false) {
         match = tmpMatch;
         matchIndex = index;

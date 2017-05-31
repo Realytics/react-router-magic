@@ -65,6 +65,7 @@ export class Route extends Component<RouteTypes.Props, void> {
         this.update(this.props);
       });
     }
+    this.update(this.props, false);
   }
 
   getChildContext(): RouteTypes.ChildContext {
