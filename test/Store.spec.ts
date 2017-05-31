@@ -44,5 +44,11 @@ describe('Store', () => {
     expect(store.getState()).toEqual(newState);
     expect(cb).toHaveBeenCalledTimes(1);
   });
+  it('unsubscribe twice should not throw error', () => {
+    const cb = jest.fn();
+    const unsubscribe = store.subscribe(cb);
+    unsubscribe();
+    expect(unsubscribe).not.toThrowError();
+  });
 
 });
