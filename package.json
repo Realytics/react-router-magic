@@ -3,7 +3,7 @@
   "version": "0.3.2",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Realytics/redux-router-location.git"
+    "url": "git+ssh://git@github.com/Realytics/redux-router-magic.git"
   },
   "keywords": [
     "react",
@@ -56,9 +56,9 @@
   },
   "description": "Like react-router but with magic inside",
   "bugs": {
-    "url": "https://github.com/Realytics/redux-router-location/issues"
+    "url": "https://github.com/Realytics/redux-router-magic/issues"
   },
-  "homepage": "https://github.com/Realytics/redux-router-location#readme",
+  "homepage": "https://github.com/Realytics/redux-router-magic#readme",
   "directories": {
     "example": "examples",
     "lib": "lib",
