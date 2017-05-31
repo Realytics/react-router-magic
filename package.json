@@ -1,6 +1,6 @@
 {
   "name": "react-router-magic",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/Realytics/redux-router-magic.git"
