@@ -72,12 +72,14 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
     return (
       <div>
         {
-          this.validChildren.map((child, index) => (
-            React.cloneElement<(RouteTypes.Props | RedirectTypes.Props), { switchIndex?: number }>(
-              child,
-              { switchIndex: index },
-            )
-          ))
+          React.Children.toArray(
+            this.validChildren.map((child, index) => (
+              React.cloneElement<(RouteTypes.Props | RedirectTypes.Props), { switchIndex?: number }>(
+                child,
+                { switchIndex: index },
+              )
+            )),
+          )
         }
       </div>
     );
