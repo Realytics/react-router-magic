@@ -10,9 +10,10 @@ export class Store<State> {
     this.subscribe = this.subscribe.bind(this);
   }
 
-  setState(newState: State): void {
+  setState(newState: State): this {
     this.state = newState;
     this.broadcast(this.state);
+    return this;
   }
 
   broadcast(state: State): void {
