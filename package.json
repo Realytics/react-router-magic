@@ -27,11 +27,10 @@
     "test:watch": "yarn test -- --watch",
     "test:cov": "yarn test -- --coverage"
   },
-  "dependencies": {
-    "@types/lodash.isstring": "^4.0.2",
-    "lodash.isstring": "^4.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@types/lodash.isstring": "^4.0.2",
+    "lodash.isstring": "^4.0.1",
     "@types/deep-equal": "^1.0.0",
     "@types/history": "^4.5.1",
     "@types/jest": "^19.2.3",
