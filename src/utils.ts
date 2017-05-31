@@ -27,11 +27,15 @@ export function checkSwitchState(
   if (parentRouterState.switch && props.switchIndex === undefined) {
     console.warn(`Error: Switch children are supposed to have switchIndex passed from parent`);
   }
-  if (props.switchIndex === false) {
+  if (
+    parentRouterState.switch &&
+    parentRouterState.switch.matchIndex === false
+  ) {
     return false;
   }
   if (
     parentRouterState.switch &&
+    props.switchIndex !== undefined &&
     parentRouterState.switch.matchIndex !== props.switchIndex
   ) {
     return false;
