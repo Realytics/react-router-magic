@@ -29,7 +29,7 @@ export function checkSwitchState(
   }
   if (
     parentRouterState.switch &&
-    props.switchIndex === undefined &&
+    props.switchIndex !== undefined &&
     parentRouterState.switch.matchIndex !== props.switchIndex
   ) {
     return false;
