@@ -11,7 +11,7 @@ import isEqual = require('deep-equal');
 export namespace SwitchTypes {
 
   export type Props = {
-    children: ReactNode;
+    children?: ReactNode;
   };
 
   export type Context = {

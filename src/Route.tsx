@@ -11,7 +11,7 @@ import { execValOrFunc, Match, ValOrFunc, checkSwitchState } from './utils';
 export namespace RouteTypes {
 
   export type Props = {
-    match: ValOrFunc<Match>;
+    match?: ValOrFunc<Match>;
     // render
     component?: ReactType;
     render?: (params: ChildParams) => JSX.Element;
