@@ -1,41 +1,38 @@
-import { Match, IPathPattern } from './interface.d';
 import isFunction = require('lodash.isfunction');
 import { RouterStoreState } from './RouterProvider';
 
-export function compilePattern<P extends {}>(
-  pattern: (
-    null |
-    undefined |
-    IPathPattern<P> |
-    ((parentPattern: IPathPattern<{}> | null, parentMatch: Match<any> | false) => IPathPattern<P>)
-  ),
+import { Location } from 'history';
+export type Match = null | undefined | boolean | object;
+
+export type ValOrFunc<Result> = Result | ((location: Location, parentMatch: Match) => Result);
+
+export function execValOrFunc<Val>(
+  valOrFunc: ValOrFunc<Val>,
   parentRouterState: RouterStoreState,
-): IPathPattern<P> | null {
-  if (pattern === undefined || pattern === null) {
-    return null;
+): Val {
+  if (isFunction(valOrFunc)) {
+    return valOrFunc(parentRouterState.location, parentRouterState.match);
   }
-  return isFunction(pattern) ? pattern(
-    parentRouterState.pattern,
-    parentRouterState.match,
-  ) : pattern;
+  return valOrFunc;
 }
 
-export function matchPattern<P extends {}>(
-  pattern: (
-    null |
-    IPathPattern<P>
-  ),
+export function checkSwitchState(
+  props: { switchIndex?: number },
   parentRouterState: RouterStoreState,
-): Match<P> | false {
-  const { pathname = '' } = parentRouterState.location;
-  if (pattern === null) {
-    // universal match
-    return {
-      params: {} as P,
-      isExact: false,
-      path: '',
-      url: pathname,
-    };
+  match: Match,
+): Match {
+  if (parentRouterState.switch === false && props.switchIndex !== undefined) {
+    console.warn(`You should not set switchIndex props yourself`);
   }
-  return pattern.match(pathname);
+  if (parentRouterState.switch && props.switchIndex === undefined) {
+    console.warn(`Error: Switch children are supposed to have switchIndex passed from parent`);
+  }
+  if (
+    parentRouterState.switch &&
+    props.switchIndex === undefined &&
+    parentRouterState.switch.matchIndex !== props.switchIndex
+  ) {
+    return false;
+  }
+  return match;
 }

@@ -1,22 +1,18 @@
 import * as React from 'react';
-import { Component, ValidationMap, ReactElement } from 'react';
+import { Component, ValidationMap, ReactElement, ReactNode } from 'react';
 import * as PropTypes from 'prop-types';
-import { Location } from 'history';
 import { Store } from './Store';
 import { Route, RouteTypes } from './Route';
 import { Redirect, RedirectTypes } from './Redirect';
 import { RouterStoreState } from './RouterProvider';
-import { IPathPattern, Match } from './interface';
-import { compilePattern, matchPattern } from './utils';
+import { execValOrFunc, Match } from './utils';
+import isEqual = require('deep-equal');
 
 export namespace SwitchTypes {
 
-  export type RouteComponentProps = {
-    match: Match<any>;
-    location: Location;
+  export type Props = {
+    children: ReactNode;
   };
-
-  export type Props = {};
 
   export type Context = {
     routerStore: Store<RouterStoreState>;
@@ -35,6 +31,14 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
 
   static displayName: string = 'Switch';
 
+  private routerStore: Store<RouterStoreState>;
+
+  private validChildren: ReactElement<(RouteTypes.Props|RedirectTypes.Props)>[] = [];
+
+  static childContextTypes: ValidationMap<any> = {
+    routerStore: PropTypes.instanceOf(Store),
+  };
+
   static contextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),
   };
@@ -44,39 +48,91 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
 
   constructor(props: SwitchTypes.Props, context: SwitchTypes.Context) {
     super(props, context);
+    if (!context.routerStore || !context.routerStore.getState()) {
+      throw new Error('Route need a RouterProvider as ancestor');
+    }
+
     this.unsubscribe = context.routerStore.subscribe(() => {
-      this.forceUpdate();
+      this.update(this.props);
     });
+    this.update(props, false);
   }
 
-  render(): JSX.Element | null {
+  getChildContext(): RouteTypes.ChildContext {
+    return {
+      routerStore: this.routerStore,
+    };
+  }
 
-    let matchFound: boolean = false;
-    let content: JSX.Element | null = null;
+  componentWillReceiveProps(nextProps: SwitchTypes.Props): void {
+    this.update(nextProps, false);
+  }
 
-    React.Children.forEach(this.props.children, (child, index) => {
-      if (matchFound) {
-        return;
-      }
+  render(): JSX.Element {
+    return (
+      <div>
+        {
+          this.validChildren.map((child, index) => (
+            React.cloneElement<(RouteTypes.Props | RedirectTypes.Props), { switchIndex?: number }>(
+              child,
+              { switchIndex: index },
+            )
+          ))
+        }
+      </div>
+    );
+  }
+
+  private updateValidChildren(props: SwitchTypes.Props): void {
+    this.validChildren = [];
+    React.Children.forEach(props.children, (child) => {
       if (!React.isValidElement<any>(child)) {
         return;
       }
-      let pattern: IPathPattern<{}> | null = null;
-      const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-      if (isComponentType<RouteTypes.Props>(child, Route)) {
-        pattern = compilePattern(child.props.pattern, parentRouterState);
-      } else if (isComponentType<RedirectTypes.Props>(child, Redirect)) {
-        pattern = !child.props.from ? null : compilePattern(child.props.from, parentRouterState);
+      if (
+        isComponentType<RouteTypes.Props>(child, Route) ||
+        isComponentType<RedirectTypes.Props>(child, Redirect)
+      ) {
+        this.validChildren.push(child);
       } else {
         console.warn(`Switch only accept Route or Redirect components as children`);
       }
-      let match: Match<{}> | false = matchPattern(pattern, parentRouterState);
-      if (match) {
-        matchFound = true;
-        content = React.cloneElement(child, { passif: true, key: index });
+    });
+  }
+
+  private update(props: SwitchTypes.Props, forceUpdate: boolean = true): void {
+    this.updateValidChildren(props);
+    const parentRouterState: RouterStoreState = this.context.routerStore.getState();
+    let match: Match = null;
+    let matchIndex: number | null = null;
+    this.validChildren.forEach((child, index) => {
+      if (matchIndex !== null) {
+        return;
+      }
+      let tmpMatch: Match = execValOrFunc<Match>(child.props, parentRouterState);
+      if (tmpMatch !== false) {
+        match = tmpMatch;
+        matchIndex = index;
       }
     });
-
-    return content;
+    const newState: RouterStoreState = {
+      location: parentRouterState.location,
+      match: parentRouterState.match,
+      switch: { match, matchIndex },
+    };
+    if (!this.routerStore) {
+      this.routerStore = new Store<RouterStoreState>(newState);
+      if (forceUpdate) {
+        this.forceUpdate();
+      }
+    } else {
+      if (!isEqual(this.routerStore.getState(), newState)) {
+        this.routerStore.setState(newState);
+        if (forceUpdate) {
+          this.forceUpdate();
+        }
+      }
+    }
   }
+
 }

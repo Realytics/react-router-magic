@@ -1,21 +1,17 @@
 import { MouseEvent, Component, ValidationMap } from 'react';
-import { Path, LocationDescriptorObject, History, Location, Search, LocationState, Hash, LocationKey } from 'history';
+import { LocationDescriptorObject, History, Location } from 'history';
 import { Store } from './Store';
 import { RouterStoreState } from './RouterProvider';
 import * as PropTypes from 'prop-types';
-import { Match, IPathPattern } from './interface.d';
+import { execValOrFunc, Match, ValOrFunc } from './utils';
+import isString = require('lodash.isstring');
 
 export namespace NavProviderTypes {
 
   export type PropsTyped<P> = {
-    to: IPathPattern<P>;
-    params?: P;
+    to: ValOrFunc<(string | LocationDescriptorObject)>;
+    isActive?: ValOrFunc<Match>;
     replace?: boolean;
-    // location props
-    search?: Search;
-    state?: LocationState;
-    hash?: Hash;
-    key?: LocationKey;
     // render
     renderChild: (params: ChildParams) => JSX.Element;
     noSubscribe?: boolean;
@@ -25,7 +21,7 @@ export namespace NavProviderTypes {
 
   export type ChildParams = {
     href: string;
-    match: Match<{}> | false;
+    match: Match;
     location: Location;
     navigate: () => void;
     handleAnchorClick: (event: MouseEvent<any>) => void;
@@ -73,10 +69,10 @@ export class NavProvider extends Component<NavProviderTypes.Props, {}> {
   render(): JSX.Element {
     const { renderChild, ...props } = this.props;
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
-    const match: Match<{}> | false = props.to.match(parentRouterState.location.pathname);
-
-    const to: LocationDescriptorObject = this.getToObject();
-    const href: string = this.context.router.history.createHref(to);
+    const match: Match = execValOrFunc(props.isActive, parentRouterState);
+    const to: string | LocationDescriptorObject = execValOrFunc(props.to, parentRouterState);
+    const toLocation: LocationDescriptorObject = isString(to) ? { pathname: to } : to;
+    const href: string = this.context.router.history.createHref(toLocation);
     const childParams: NavProviderTypes.ChildParams = {
       href: href,
       navigate: () => this.navigate(),
@@ -88,28 +84,17 @@ export class NavProvider extends Component<NavProviderTypes.Props, {}> {
     return renderChild(childParams);
   }
 
-  private getToObject(): LocationDescriptorObject {
-    const { search, state, hash, key, to, params = {} } = this.props;
-    const path: Path = to.compile(params);
-    const toObj: LocationDescriptorObject = {
-      pathname: path,
-      search,
-      state,
-      hash,
-      key,
-    };
-    return toObj;
-  }
-
   private navigate(): void {
     const { replace = false } = this.props;
-    const to: LocationDescriptorObject = this.getToObject();
+    const parentRouterState: RouterStoreState = this.context.routerStore.getState();
+    const to: string | LocationDescriptorObject = execValOrFunc(this.props.to, parentRouterState);
+    const toLocation: LocationDescriptorObject = isString(to) ? { pathname: to } : to;
     const history: History = this.context.router.history;
 
     if (replace) {
-      history.replace(to);
+      history.replace(toLocation);
     } else {
-      history.push(to);
+      history.push(toLocation);
     }
   }
 

@@ -4,12 +4,12 @@ import isEqual = require('deep-equal');
 import { Component, ValidationMap } from 'react';
 import { History, Location } from 'history';
 import { Store } from './Store';
-import { Match, IPathPattern } from './interface.d';
+import { Match } from './utils';
 
 export type RouterStoreState = {
   location: Location;
-  match: Match<{}> | false;
-  pattern: IPathPattern<{}> | null;
+  match: Match;
+  switch: false | { match: Match, matchIndex: number | null };
 };
 
 export namespace RouterProviderTypes {
@@ -35,21 +35,14 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
     router: PropTypes.any,
   };
 
-  static EMPTY_MATCH: Match<any> = {
-    params: null,
-    isExact: false,
-    path: '/',
-    url: '/',
-  };
-
   private routerStore: Store<RouterStoreState>;
 
   constructor(props: RouterProviderTypes.Props) {
     super(props);
     this.routerStore = new Store<RouterStoreState>({
       location: props.location,
-      match: RouterProvider.EMPTY_MATCH,
-      pattern: null,
+      match: null,
+      switch: false,
     });
   }
 
@@ -57,8 +50,8 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
     if (!isEqual(nextProps.location, this.props.location)) {
       this.routerStore.setState({
         location: nextProps.location,
-        match: RouterProvider.EMPTY_MATCH,
-        pattern: null,
+        match: null,
+        switch: false,
       });
     }
   }

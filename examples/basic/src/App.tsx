@@ -1,27 +1,24 @@
-import React, { Component } from 'react';
-import { RouterProvider, PathPattern, Route, NavProvider, Redirect, Switch } from 'react-router-magic';
+import * as React from 'react';
+import { Component } from 'react';
+import { RouterProvider, Route, NavProvider, Redirect, Switch } from 'react-router-magic';
 import createHistory from 'history/createBrowserHistory';
+import { Location } from 'history';
 
 const history = createHistory();
 
-const homePath = new PathPattern('/home');
-const helloPath = new PathPattern('/hello');
-const userExactPath = new PathPattern('/user', { exact: true });
-const userPath = new PathPattern('/user/:user');
-const welcomeUserPath = new PathPattern('/user/welcome');
-const parentPath = new PathPattern('/parent');
-
-class App extends Component {
+export class App extends Component<{}, { location: Location }> {
 
   constructor() {
-    super()
+    super();
     this.state = {
-      location: history.location
-    }
+      location: history.location,
+    };
   }
 
+  private unlisten: () => void;
+
   componentDidMount() {
-    this.unlisten = history.listen((location, action) => {
+    this.unlisten = history.listen((location: Location) => {
       this.setState({ location: location });
     });
   }
@@ -36,94 +33,74 @@ class App extends Component {
         <div>
           <h2>Welcome to React</h2>
           <NavProvider
-            to={homePath}
+            to='/home'
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Go to home</a>
             )}
           /><br/>
           <NavProvider
-            to={helloPath}
+            to='/hello'
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Go to hello (redirect to /user/john)</a>
             )}
           /><br />
           <NavProvider
-            to={userExactPath}
+            to='/user'
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Go to user homepage</a>
             )}
           /><br />
           <NavProvider
-            to={userPath}
-            params={{ user: 'jane' }}
+            to='/user/jane'
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Go say hello to Jane</a>
             )}
           /><br />
           <NavProvider
-            to={welcomeUserPath}
+            to='/user/welcome'
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Go welcome users</a>
             )}
           /><br />
           <NavProvider
-            to={userPath}
-            params={{ user: 'welcome' }}
+            to='/user/welcome'
             renderChild={(params) => (
               <a href={params.href} onClick={params.handleAnchorClick}>Also Go welcome users</a>
             )}
           /><br />
           <Route
-            pattern={homePath}
+            match={(location: Location) => location.pathname === '/home'}
             render={() => (
               <p>Home !!</p>
             )}
           />
           <Redirect
-            from={helloPath}
-            to={userPath}
-            params={{ user: 'john' }}
-          />
-          <Route
-            pattern={userExactPath}
-            render={() => (
-              <p>User page</p>
-            )}
+            match={(location: Location) => location.pathname === '/hello'}
+            to='/user/john'
           />
           <Switch>
             <Route
-              pattern={welcomeUserPath}
+              match={(location: Location) => location.pathname === '/user/welcome'}
               render={() => (
                 <p>Welcome User !</p>
               )}
             />
             <Route
-              pattern={userPath}
+              match={(location: Location) => {
+                if (location.pathname.match(/^\/user/)) {
+                  return {
+                    user: location.pathname.replace(/^\/user\/?/, ''),
+                  };
+                }
+                return false;
+              }}
               render={(params) => (
-                <p>Hello {params.match !== null ? params.match.params.user : 'Anonymous' }</p>
+                <p>Hello { (params.match as any).user }</p>
               )}
             />
           </Switch>
-          <Route
-            pattern={parentPath}
-            render={() => (
-              <div>
-                Parent
-                <Route
-                  pattern={(parentPattern, parentMatch) => new PathPattern(parentMatch && parentMatch.url + '/child')}
-                  render={() => (
-                    <div>
-                      Child
-                    </div>
-                  )}
-                />
-              </div>
-            )}
-          />
         </div>
       </RouterProvider>
     );
   }
 }
-
-export default App;

@@ -35,10 +35,6 @@
       "allow-null-check"
     ],
     "eofline": true,
-    "indent": [
-      true,
-      "spaces"
-    ],
     "linebreak-style": [
       true,
       "LF"
