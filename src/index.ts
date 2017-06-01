@@ -3,3 +3,4 @@ export { Switch } from './Switch';
 export { NavProvider } from './NavProvider';
 export { RouterProvider, RouterProviderTypes } from './RouterProvider';
 export { Redirect } from './Redirect';
+export { Link } from './Link';
