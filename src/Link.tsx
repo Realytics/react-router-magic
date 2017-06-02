@@ -6,13 +6,14 @@ import { Match, ValOrFunc } from './utils';
 
 export type LinkProps = HTMLProps<HTMLAnchorElement> & {
   to: ValOrFunc<(string | LocationDescriptorObject)>;
+  activeClassName?: string;
   match?: ValOrFunc<Match>;
   replace?: boolean;
   noSubscribe?: boolean;
 };
 
 export const Link: StatelessComponent<LinkProps> = (props: LinkProps) => {
-  const { to, match, noSubscribe, replace, ...aProps } = props;
+  const { to, match, noSubscribe, replace, activeClassName = '', className, ...aProps } = props;
   return (
     <NavProvider
       {...{ to, match, noSubscribe, replace }}
@@ -20,6 +21,7 @@ export const Link: StatelessComponent<LinkProps> = (props: LinkProps) => {
         <a
           {...aProps}
           href={params.href}
+          className={[(match !== false ? activeClassName : ''), className].join(' ')}
           onClick={(e) => {
             if (aProps.onClick) {
               aProps.onClick(e);
