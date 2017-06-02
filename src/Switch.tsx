@@ -1,24 +1,20 @@
 import * as React from 'react';
 import { Component, ValidationMap, ReactElement, ReactNode } from 'react';
 import * as PropTypes from 'prop-types';
-import { Store } from './Store';
-import { Route, RouteTypes } from './Route';
-import { Redirect, RedirectTypes } from './Redirect';
-import { RouterStoreState } from './RouterProvider';
+import { Store, RouterStoreState } from './Store';
+import { Route, RouteProps, RouteChildContext } from './Route';
+import { Redirect, RedirectProps } from './Redirect';
+import {  } from './RouterProvider';
 import { execValOrFunc, Match } from './utils';
 import isEqual = require('deep-equal');
 
-export namespace SwitchTypes {
+export type SwitchProps = {
+  children?: ReactNode;
+};
 
-  export type Props = {
-    children?: ReactNode;
-  };
-
-  export type Context = {
-    routerStore: Store<RouterStoreState>;
-  };
-
-}
+export type SwitchContext = {
+  routerStore: Store<RouterStoreState>;
+};
 
 function isComponentType<P>(child: ReactElement<any>, type: any): child is ReactElement<P> {
   return child.type === type;
@@ -27,13 +23,13 @@ function isComponentType<P>(child: ReactElement<any>, type: any): child is React
 /**
  * Render the first Route that match
  */
-export class Switch extends Component<SwitchTypes.Props, {}> {
+export class Switch extends Component<SwitchProps, {}> {
 
   static displayName: string = 'Switch';
 
   private routerStore: Store<RouterStoreState>;
 
-  private validChildren: ReactElement<(RouteTypes.Props|RedirectTypes.Props)>[] = [];
+  private validChildren: ReactElement<(RouteProps|RedirectProps)>[] = [];
 
   static childContextTypes: ValidationMap<any> = {
     routerStore: PropTypes.instanceOf(Store),
@@ -43,10 +39,10 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
     routerStore: PropTypes.instanceOf(Store),
   };
 
-  context: SwitchTypes.Context;
+  context: SwitchContext;
   unsubscribe: () => void;
 
-  constructor(props: SwitchTypes.Props, context: SwitchTypes.Context) {
+  constructor(props: SwitchProps, context: SwitchContext) {
     super(props, context);
     if (!context.routerStore || !context.routerStore.getState()) {
       throw new Error('Switch need a RouterProvider as ancestor');
@@ -58,13 +54,13 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
     this.update(props, false);
   }
 
-  getChildContext(): RouteTypes.ChildContext {
+  getChildContext(): RouteChildContext {
     return {
       routerStore: this.routerStore,
     };
   }
 
-  componentWillReceiveProps(nextProps: SwitchTypes.Props): void {
+  componentWillReceiveProps(nextProps: SwitchProps): void {
     this.update(nextProps, false);
   }
 
@@ -74,7 +70,7 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
         {
           React.Children.toArray(
             this.validChildren.map((child, index) => (
-              React.cloneElement<(RouteTypes.Props | RedirectTypes.Props), { switchIndex?: number }>(
+              React.cloneElement<(RouteProps | RedirectProps), { switchIndex?: number }>(
                 child,
                 { switchIndex: index },
               )
@@ -85,15 +81,15 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
     );
   }
 
-  private updateValidChildren(props: SwitchTypes.Props): void {
+  private updateValidChildren(props: SwitchProps): void {
     this.validChildren = [];
     React.Children.forEach(props.children, (child) => {
       if (!React.isValidElement<any>(child)) {
         return;
       }
       if (
-        isComponentType<RouteTypes.Props>(child, Route) ||
-        isComponentType<RedirectTypes.Props>(child, Redirect)
+        isComponentType<RouteProps>(child, Route) ||
+        isComponentType<RedirectProps>(child, Redirect)
       ) {
         this.validChildren.push(child);
       } else {
@@ -102,7 +98,7 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
     });
   }
 
-  private update(props: SwitchTypes.Props, forceUpdate: boolean = true): void {
+  private update(props: SwitchProps, forceUpdate: boolean = true): void {
     this.updateValidChildren(props);
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
     let match: Match = null;
@@ -111,7 +107,11 @@ export class Switch extends Component<SwitchTypes.Props, {}> {
       if (matchIndex !== false) {
         return;
       }
-      let tmpMatch: Match = execValOrFunc<Match>(child.props.match, parentRouterState);
+      let tmpMatch: Match = execValOrFunc<Match>(
+        child.props.match,
+        parentRouterState.location,
+        parentRouterState.match,
+      );
       if (tmpMatch !== false) {
         match = tmpMatch;
         matchIndex = index;

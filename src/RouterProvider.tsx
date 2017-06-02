@@ -3,30 +3,19 @@ import * as PropTypes from 'prop-types';
 import isEqual = require('deep-equal');
 import { Component, ValidationMap } from 'react';
 import { History, Location } from 'history';
-import { Store } from './Store';
-import { Match } from './utils';
+import { Store, RouterStoreState } from './Store';
 
-export type RouterStoreState = {
+export type RouterProviderProps = {
+  history: History;
   location: Location;
-  match: Match;
-  switch: false | { match: Match, matchIndex: number | false };
 };
 
-export namespace RouterProviderTypes {
+export type RouterProviderChildContext = {
+  router: { history: History };
+  routerStore: Store<RouterStoreState>;
+};
 
-  export type Props = {
-    history: History;
-    location: Location;
-  };
-
-  export type ChildContext = {
-    router: { history: History };
-    routerStore: Store<RouterStoreState>;
-  };
-
-}
-
-export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
+export class RouterProvider extends Component<RouterProviderProps, void> {
 
   static displayName: string = 'RouterProvider';
 
@@ -37,7 +26,7 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
 
   private routerStore: Store<RouterStoreState>;
 
-  constructor(props: RouterProviderTypes.Props) {
+  constructor(props: RouterProviderProps) {
     super(props);
     this.routerStore = new Store<RouterStoreState>({
       location: props.location,
@@ -46,7 +35,7 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
     });
   }
 
-  componentWillReceiveProps(nextProps: RouterProviderTypes.Props): void {
+  componentWillReceiveProps(nextProps: RouterProviderProps): void {
     if (!isEqual(nextProps.location, this.props.location)) {
       this.routerStore.setState({
         location: nextProps.location,
@@ -56,7 +45,7 @@ export class RouterProvider extends Component<RouterProviderTypes.Props, void> {
     }
   }
 
-  getChildContext(): RouterProviderTypes.ChildContext {
+  getChildContext(): RouterProviderChildContext {
     return {
       router: { history: this.props.history },
       routerStore: this.routerStore,

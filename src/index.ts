@@ -1,6 +1,10 @@
-export { Route } from './Route';
-export { Switch } from './Switch';
-export { NavProvider } from './NavProvider';
-export { RouterProvider, RouterProviderTypes } from './RouterProvider';
-export { Redirect } from './Redirect';
-export { Link } from './Link';
+export * from './Route';
+export * from './Switch';
+export * from './NavProvider';
+export * from './RouterProvider';
+export * from './Redirect';
+export * from './Link';
+export {
+  createNavParams, NavParams, ValOrFunc, Match, StringOrLocationDescriptorObject,
+  ToProps, createHandleAnchorClick, navigate,
+} from './utils';

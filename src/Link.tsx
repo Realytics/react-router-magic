@@ -4,22 +4,18 @@ import { NavProvider } from './NavProvider';
 import { LocationDescriptorObject } from 'history';
 import { Match, ValOrFunc } from './utils';
 
-export namespace LinkTypes {
+export type LinkProps = HTMLProps<HTMLAnchorElement> & {
+  to: ValOrFunc<(string | LocationDescriptorObject)>;
+  match?: ValOrFunc<Match>;
+  replace?: boolean;
+  noSubscribe?: boolean;
+};
 
-  export type Props = HTMLProps<HTMLAnchorElement> & {
-    to: ValOrFunc<(string | LocationDescriptorObject)>;
-    isActive?: ValOrFunc<Match>;
-    replace?: boolean;
-    noSubscribe?: boolean;
-  };
-
-}
-
-export const Link: StatelessComponent<LinkTypes.Props> = (props: LinkTypes.Props) => {
-  const { to, isActive, noSubscribe, replace, ...aProps } = props;
+export const Link: StatelessComponent<LinkProps> = (props: LinkProps) => {
+  const { to, match, noSubscribe, replace, ...aProps } = props;
   return (
     <NavProvider
-      {...{ to, isActive, noSubscribe, replace }}
+      {...{ to, match, noSubscribe, replace }}
       renderChild={(params) => (
         <a
           {...aProps}

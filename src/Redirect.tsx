@@ -1,31 +1,25 @@
 import { Component, ValidationMap } from 'react';
 import * as PropTypes from 'prop-types';
 import { History, LocationDescriptorObject } from 'history';
-import { Store } from './Store';
-import { RouterStoreState } from './RouterProvider';
-import { execValOrFunc, Match, ValOrFunc, checkSwitchState } from './utils';
-import isString = require('lodash.isstring');
+import { Store, RouterStoreState } from './Store';
+import { execValOrFunc, Match, ValOrFunc, checkSwitchState, ToProps, navigate, execTo } from './utils';
 
-export namespace RedirectTypes {
+export type RedirectPropsTyped<P> = {
+  to: ToProps;
+  match?: ValOrFunc<Match>;
+  push?: boolean;
+  noSubscribe?: boolean;
+  switchIndex?: number;
+};
 
-  export type PropsTyped<P> = {
-    to: ValOrFunc<(string | LocationDescriptorObject)>;
-    match?: ValOrFunc<Match>;
-    push?: boolean;
-    noSubscribe?: boolean;
-    switchIndex?: number;
-  };
+export type RedirectProps = RedirectPropsTyped<any>;
 
-  export type Props = PropsTyped<any>;
+export type RedirectContext = {
+  routerStore: Store<RouterStoreState>;
+  router: { history: History };
+};
 
-  export type Context = {
-    routerStore: Store<RouterStoreState>;
-    router: { history: History };
-  };
-
-}
-
-export class Redirect extends Component<RedirectTypes.Props, {}> {
+export class Redirect extends Component<RedirectProps, {}> {
 
   static displayName: string = 'Redirect';
 
@@ -34,10 +28,10 @@ export class Redirect extends Component<RedirectTypes.Props, {}> {
     router: PropTypes.any,
   };
 
-  context: RedirectTypes.Context;
+  context: RedirectContext;
   private unsubscribe: () => void;
 
-  constructor(props: RedirectTypes.Props, context: RedirectTypes.Context) {
+  constructor(props: RedirectProps, context: RedirectContext) {
     super(props, context);
     this.unsubscribe = context.routerStore.subscribe(() => {
       this.update(this.props);
@@ -53,7 +47,7 @@ export class Redirect extends Component<RedirectTypes.Props, {}> {
     this.update(this.props);
   }
 
-  componentWillReceiveProps(nextProps: RedirectTypes.Props): void {
+  componentWillReceiveProps(nextProps: RedirectProps): void {
     this.update(nextProps);
   }
 
@@ -67,24 +61,22 @@ export class Redirect extends Component<RedirectTypes.Props, {}> {
     }
   }
 
-  private update(props: RedirectTypes.Props): void {
-    const history: History = this.context.router.history;
+  private update(props: RedirectProps): void {
     const parentRouterState: RouterStoreState = this.context.routerStore.getState();
     const match: Match = checkSwitchState(
       props,
       parentRouterState,
-      execValOrFunc(this.props.match, parentRouterState),
+      execValOrFunc(this.props.match, parentRouterState.location, parentRouterState.match),
     );
     const push: boolean = this.props.push === true;
-
     if (match !== false) { // redirect
-      const to: string | LocationDescriptorObject = execValOrFunc(this.props.to, parentRouterState);
-      const toLocation: LocationDescriptorObject = isString(to) ? { pathname: to } : to;
-      if (push) {
-        history.push(toLocation);
-      } else {
-        history.replace(toLocation);
-      }
+      const toLocation: LocationDescriptorObject = execTo(
+        this.props.to,
+        match,
+        parentRouterState.location,
+        parentRouterState.match,
+      );
+      navigate(toLocation, this.context.router.history, !push);
     }
   }
 

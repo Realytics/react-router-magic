@@ -24,16 +24,20 @@ const parentRouterStateWithSwitch: RouterStoreState = {
 
 describe('execValOrFunc', () => {
   it('return the value', () => {
-    expect(execValOrFunc<boolean>(false, parentRouterState)).toEqual(false);
+    expect(execValOrFunc<boolean>(false, parentRouterState.location, parentRouterState.match)).toEqual(false);
   });
   it('execute the function', () => {
-    expect(execValOrFunc<boolean>(() => false, parentRouterState)).toEqual(false);
+    expect(execValOrFunc<boolean>(() => false, parentRouterState.location, parentRouterState.match)).toEqual(false);
   });
   it('execute the function and return location', () => {
-    expect(execValOrFunc<Location>((location) => location, parentRouterState)).toEqual(location);
+    expect(
+      execValOrFunc<Location>((location) => location, parentRouterState.location, parentRouterState.match),
+    ).toEqual(location);
   });
   it('execute the function and return match', () => {
-    expect(execValOrFunc<Match>((location, match) => match, parentRouterState)).toEqual(match);
+    expect(
+      execValOrFunc<Match>((location, match) => match, parentRouterState.location, parentRouterState.match),
+    ).toEqual(match);
   });
 });
 

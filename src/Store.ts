@@ -1,3 +1,12 @@
+import { Match } from './utils';
+import { Location } from 'history';
+
+export type RouterStoreState = {
+  location: Location;
+  match: Match;
+  switch: false | { match: Match, matchIndex: number | false };
+};
+
 export class Store<State> {
 
   private listeners: ((state: State) => void)[] = [];
