@@ -32,6 +32,13 @@ export class NavProvider extends Component<NavProviderProps, {}> {
   context: NavProviderContext;
   private unsubscribe: () => void;
 
+  constructor(props: NavProviderProps, context: NavProviderContext) {
+    super(props, context);
+    if (!context.routerStore || !context.routerStore.getState() || !context.router || !context.router.history) {
+      throw new Error('InjectMatch need a RouterProvider as ancestor');
+    }
+  }
+
   componentDidMount() {
     if (this.props.noSubscribe !== true) {
       this.unsubscribe = this.context.routerStore.subscribe(() => {

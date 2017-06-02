@@ -3,6 +3,7 @@ import { Component } from 'react';
 import { RouterProvider, Route, NavProvider, Redirect, Switch } from 'react-router-magic';
 import createHistory from 'history/createBrowserHistory';
 import { Location } from 'history';
+import { Injected } from './Injected';
 
 const history = createHistory();
 
@@ -79,7 +80,10 @@ export class App extends Component<{}, { location: Location }> {
             <Route
               match={(location: Location) => location.pathname === '/user/welcome'}
               render={() => (
-                <p>Welcome User !</p>
+                <div>
+                  <p>Welcome User !</p>
+                  <Injected />
+                </div>
               )}
             />
             <Route
@@ -92,13 +96,17 @@ export class App extends Component<{}, { location: Location }> {
                 return false;
               }}
               render={(params) => (
-                <p>Hello { (params.match as any).user }</p>
+                <div>
+                  <p>Hello { (params.match as any).user }</p>
+                  <Injected />
+                </div>
               )}
             />
             <Route
               render={() => (<div>Not found !</div>)}
             />
           </Switch>
+          <Injected />
         </div>
       </RouterProvider>
     );

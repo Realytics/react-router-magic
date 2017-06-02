@@ -121,3 +121,45 @@ export function execTo(
   ) : to;
   return isString(toExecuted) ? { pathname: toExecuted } : toExecuted;
 }
+
+const REACT_STATICS: { [key: string]: boolean } = {
+  childContextTypes: true,
+  contextTypes: true,
+  defaultProps: true,
+  displayName: true,
+  getDefaultProps: true,
+  mixins: true,
+  propTypes: true,
+  type: true,
+};
+
+const KNOWN_STATICS: {[key: string]: boolean} = {
+  name: true,
+  length: true,
+  prototype: true,
+  caller: true,
+  arguments: true,
+  arity: true,
+};
+
+export function hoistNonReactStatics(
+  targetComponent: any,
+  sourceComponent: any,
+  customStatics?: { [key: string]: boolean },
+) {
+  if (typeof sourceComponent !== 'string') { // don't hoist over string (html) components
+    let keys: string[] = Object.getOwnPropertyNames(sourceComponent);
+
+    for (let i = 0; i < keys.length; ++i) {
+      if (!REACT_STATICS[keys[i]] && !KNOWN_STATICS[keys[i]] && (!customStatics || !customStatics[keys[i]])) {
+        try {
+          targetComponent[keys[i]] = sourceComponent[keys[i]];
+        } catch (error) {
+          console.warn(error);
+        }
+      }
+    }
+  }
+
+  return targetComponent;
+}

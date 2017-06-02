@@ -10,6 +10,7 @@ import isEqual = require('deep-equal');
 
 export type SwitchProps = {
   children?: ReactNode;
+  renderContainer?: (children: ReactElement<(RouteProps | RedirectProps)>[]) => JSX.Element;
 };
 
 export type SwitchContext = {
@@ -64,20 +65,26 @@ export class Switch extends Component<SwitchProps, {}> {
     this.update(nextProps, false);
   }
 
+  componentWillUnmount(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
+  }
+
   render(): JSX.Element {
+    const { renderContainer = this.defaultRenderContainer } = this.props;
+    const childrenWithIndex: ReactElement<(RouteProps | RedirectProps)>[] = this.validChildren.map((child, index) => (
+      React.cloneElement<(RouteProps | RedirectProps), { switchIndex?: number }>(
+        child,
+        { switchIndex: index },
+      )
+    ));
+    return renderContainer(childrenWithIndex);
+  }
+
+  private defaultRenderContainer(children: ReactElement<(RouteProps | RedirectProps)>[]): JSX.Element {
     return (
-      <div>
-        {
-          React.Children.toArray(
-            this.validChildren.map((child, index) => (
-              React.cloneElement<(RouteProps | RedirectProps), { switchIndex?: number }>(
-                child,
-                { switchIndex: index },
-              )
-            )),
-          )
-        }
-      </div>
+      <div>{React.Children.toArray(children)}</div>
     );
   }
 
