@@ -21,7 +21,7 @@ export const Link: StatelessComponent<LinkProps> = (props: LinkProps) => {
         <a
           {...aProps}
           href={params.href}
-          className={[(match !== false ? activeClassName : ''), className].join(' ')}
+          className={[(match === false ? activeClassName : ''), className].join(' ')}
           onClick={(e) => {
             if (aProps.onClick) {
               aProps.onClick(e);
