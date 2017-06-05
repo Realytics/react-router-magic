@@ -54,6 +54,8 @@ export function InjectMagicRouter<P>(options: WhatToInject = {}): Decorator<P> {
       context: MagicRouterProviderContext;
       unsubscribe: () => void;
 
+      private isUnmounted: boolean = false;
+
       constructor(props: any, context: MagicRouterProviderContext) {
         super(props, context);
         if (!context.routerStore || !context.routerStore.getState() || !context.router || !context.router.history) {
@@ -62,12 +64,15 @@ export function InjectMagicRouter<P>(options: WhatToInject = {}): Decorator<P> {
 
         if (needSubscribe) {
           this.unsubscribe = context.routerStore.subscribe(() => {
-            this.forceUpdate();
+            if (this.isUnmounted === false) {
+              this.forceUpdate();
+            }
           });
         }
       }
 
       componentWillUnmount(): void {
+        this.isUnmounted = true;
         if (this.unsubscribe) {
           this.unsubscribe();
         }

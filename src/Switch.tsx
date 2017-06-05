@@ -41,7 +41,8 @@ export class Switch extends Component<SwitchProps, {}> {
   };
 
   context: SwitchContext;
-  unsubscribe: () => void;
+  private unsubscribe: () => void;
+  private isUnmounted: boolean = false;
 
   constructor(props: SwitchProps, context: SwitchContext) {
     super(props, context);
@@ -66,6 +67,7 @@ export class Switch extends Component<SwitchProps, {}> {
   }
 
   componentWillUnmount(): void {
+    this.isUnmounted = true;
     if (this.unsubscribe) {
       this.unsubscribe();
     }
@@ -131,13 +133,13 @@ export class Switch extends Component<SwitchProps, {}> {
     };
     if (!this.routerStore) {
       this.routerStore = new Store<RouterStoreState>(newState);
-      if (forceUpdate) {
+      if (forceUpdate && !this.isUnmounted) {
         this.forceUpdate();
       }
     } else {
       if (!isEqual(this.routerStore.getState(), newState)) {
         this.routerStore.setState(newState);
-        if (forceUpdate) {
+        if (forceUpdate && !this.isUnmounted) {
           this.forceUpdate();
         }
       }

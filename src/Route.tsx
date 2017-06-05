@@ -47,6 +47,7 @@ export class Route extends Component<RouteProps, void> {
   private routerStore: Store<RouterStoreState>;
   private matchResult: Match = null;
   private unsubscribe: () => void;
+  private isUnmounted: boolean = false;
 
   constructor(props: RouteProps, context: RouteContext) {
     super(props, context);
@@ -74,6 +75,7 @@ export class Route extends Component<RouteProps, void> {
   }
 
   componentWillUnmount(): void {
+    this.isUnmounted = true;
     if (this.unsubscribe) {
       this.unsubscribe();
     }
@@ -112,13 +114,13 @@ export class Route extends Component<RouteProps, void> {
     };
     if (!this.routerStore) {
       this.routerStore = new Store<RouterStoreState>(newState);
-      if (forceUpdate) {
+      if (forceUpdate && !this.isUnmounted) {
         this.forceUpdate();
       }
     } else {
       if (!isEqual(this.routerStore.getState(), newState)) {
         this.routerStore.setState(newState);
-        if (forceUpdate) {
+        if (forceUpdate && !this.isUnmounted) {
           this.forceUpdate();
         }
       }

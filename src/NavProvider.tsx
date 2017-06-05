@@ -31,6 +31,7 @@ export class NavProvider extends Component<NavProviderProps, {}> {
 
   context: NavProviderContext;
   private unsubscribe: () => void;
+  private isUnmounted: boolean = false;
 
   constructor(props: NavProviderProps, context: NavProviderContext) {
     super(props, context);
@@ -42,7 +43,7 @@ export class NavProvider extends Component<NavProviderProps, {}> {
   componentDidMount() {
     if (this.props.noSubscribe !== true) {
       this.unsubscribe = this.context.routerStore.subscribe(() => {
-        this.forceUpdate();
+        this.update();
       });
     }
   }
@@ -53,9 +54,16 @@ export class NavProvider extends Component<NavProviderProps, {}> {
         this.unsubscribe();
       } else {
         this.unsubscribe = this.context.routerStore.subscribe(() => {
-          this.forceUpdate();
+          this.update();
         });
       }
+    }
+  }
+
+  componentWillUnmount(): void {
+    this.isUnmounted = true;
+    if (this.unsubscribe) {
+      this.unsubscribe();
     }
   }
 
@@ -72,6 +80,12 @@ export class NavProvider extends Component<NavProviderProps, {}> {
     );
 
     return renderChild(childParams);
+  }
+
+  private update(): void {
+    if (this.isUnmounted === false) {
+      this.forceUpdate();
+    }
   }
 
 }
