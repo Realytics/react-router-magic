@@ -15,7 +15,7 @@ export type RouterProviderChildContext = {
   routerStore: Store<RouterStoreState>;
 };
 
-export class RouterProvider extends Component<RouterProviderProps, void> {
+export class RouterProvider extends Component<RouterProviderProps, {}> {
 
   static displayName: string = 'RouterProvider';
 

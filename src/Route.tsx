@@ -31,7 +31,7 @@ export type RouteChildParams = {
   location: Location;
 };
 
-export class Route extends Component<RouteProps, void> {
+export class Route extends Component<RouteProps, {}> {
 
   static displayName: string = 'Route';
 
