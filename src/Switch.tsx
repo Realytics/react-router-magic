@@ -23,6 +23,8 @@ function isComponentType<P>(child: ReactElement<any>, type: any): child is React
 
 /**
  * Render the first Route that match
+ * To do so, Switch take the passed children and test their match props
+ * It find the first match and pass in a swtichIndex in context
  */
 export class Switch extends Component<SwitchProps, {}> {
 
@@ -131,7 +133,7 @@ export class Switch extends Component<SwitchProps, {}> {
       match: parentRouterState.match,
       switch: { match, matchIndex },
     };
-    if (!this.routerStore) {
+    if (!this.routerStore) { // update is called in constructor to init
       this.routerStore = new Store<RouterStoreState>(newState);
       if (forceUpdate && !this.isUnmounted) {
         this.forceUpdate();

@@ -45,12 +45,14 @@ export function checkSwitchState(
   if (parentRouterState.switch && props.switchIndex === undefined) {
     console.warn(`Error: Switch children are supposed to have switchIndex passed from parent`);
   }
+  // in a switch but there are no match
   if (
     parentRouterState.switch &&
     parentRouterState.switch.matchIndex === false
   ) {
     return false;
   }
+  // in a switch but switchIndex does not match
   if (
     parentRouterState.switch &&
     props.switchIndex !== undefined &&
@@ -58,6 +60,7 @@ export function checkSwitchState(
   ) {
     return false;
   }
+  // ok match !
   return match;
 }
 

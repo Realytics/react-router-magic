@@ -11,7 +11,7 @@ This package is under developement, do not use it in production.
 
 This package is highly inspired by `react-router` but it differ in two major way:
 - The `location` is passed via context even if `shouldComponentUpdate` is implemented : We use a subscribtion system to make sure all `Route` are updated when the `location` changes.
-- The path matching logic is not include : instead of manipulating paths as string like in `react-router`, `react-router-magic` expect a pattern which is just a class that must implement two methods (`match` & `compile`). This mmean you can use whatever logic you want to match paths. If you want something similar to what `react-router` does, you can use [path-pattern](https://github.com/Realytics/path-pattern).
+- The path matching logic is not include : instead of manipulating paths as string like in `react-router`, `react-router-magic` expect a match function  `(location: Location, parentMatch: Match) => Result`. This mean you can use whatever logic you want to match paths. If you want something similar to what `react-router` does, you can use [path-pattern](https://github.com/Realytics/path-pattern).
 
 ## Prerequisites
 
