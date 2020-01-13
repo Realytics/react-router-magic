@@ -48,7 +48,7 @@ export class NavProvider extends Component<NavProviderProps, {}> {
     }
   }
 
-  componentWillReceiveProps(nextProps: NavProviderProps): void {
+  UNSAFE_componentWillReceiveProps(nextProps: NavProviderProps): void {
     if (this.props.noSubscribe !== nextProps.noSubscribe) {
       if (nextProps.noSubscribe && this.unsubscribe) {
         this.unsubscribe();

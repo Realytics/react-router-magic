@@ -35,7 +35,7 @@ export class RouterProvider extends Component<RouterProviderProps, {}> {
     });
   }
 
-  componentWillReceiveProps(nextProps: RouterProviderProps): void {
+  UNSAFE_componentWillReceiveProps(nextProps: RouterProviderProps): void {
     if (!isEqual(nextProps.location, this.props.location)) {
       this.routerStore.setState({
         location: nextProps.location,
