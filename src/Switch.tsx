@@ -64,7 +64,7 @@ export class Switch extends Component<SwitchProps, {}> {
     };
   }
 
-  componentWillReceiveProps(nextProps: SwitchProps): void {
+  UNSAFE_componentWillReceiveProps(nextProps: SwitchProps): void {
     this.update(nextProps, false);
   }
 

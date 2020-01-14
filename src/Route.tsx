@@ -70,7 +70,7 @@ export class Route extends Component<RouteProps, {}> {
     };
   }
 
-  componentWillReceiveProps(nextProps: RouteProps): void {
+  UNSAFE_componentWillReceiveProps(nextProps: RouteProps): void {
     this.update(nextProps, false);
   }
 

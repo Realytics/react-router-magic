@@ -47,7 +47,7 @@ export class Redirect extends Component<RedirectProps, {}> {
     this.update(this.props);
   }
 
-  componentWillReceiveProps(nextProps: RedirectProps): void {
+  UNSAFE_componentWillReceiveProps(nextProps: RedirectProps): void {
     this.update(nextProps);
   }
 
